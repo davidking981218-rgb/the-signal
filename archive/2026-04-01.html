@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE SIGNAL — AI Daily Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d0d12; color:#e0e0e0; font-family:'Noto Sans KR',sans-serif; font-weight:500; min-height:100vh; }
+
+  .masthead { text-align:center; padding:48px 20px 32px; border-bottom:1px solid #1a1a2e; }
+  .masthead-rule { width:60px; height:2px; background:linear-gradient(90deg,#6366f1,#a78bfa); margin:0 auto 18px; }
+  .masthead h1 { font-size:42px; font-weight:700; letter-spacing:6px; text-transform:uppercase; color:#f0f0f0; margin-bottom:8px; }
+  .masthead .date { font-family:'DM Mono',monospace; font-size:13px; color:#777; letter-spacing:1px; font-weight:500; }
+  .masthead .edition { font-family:'DM Mono',monospace; font-size:11px; color:#666; font-weight:500; margin-top:4px; }
+
+  .container { max-width:680px; margin:0 auto; padding:28px 20px 48px; display:flex; flex-direction:column; gap:16px; }
+
+  .card { background:#12121c; border:1px solid #1e1e30; border-radius:12px; padding:24px; animation:fadeUp .5s ease both; transition:border-color .2s; }
+  .card:hover { border-color:#6366f180; }
+  .card-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .num { font-family:'DM Mono',monospace; font-size:13px; color:#6366f180; font-weight:700; }
+  .badge { font-size:12px; color:#c4b5fd; padding:4px 12px; border:1px solid #a78bfa40; border-radius:20px; font-weight:600; background:#a78bfa15; }
+  .sources { font-family:'DM Mono',monospace; font-size:11px; color:#777; font-weight:500; margin-left:auto; }
+
+  .card-link { text-decoration:none; color:inherit; }
+  .card-link:hover .card-title { color:#a78bfa; }
+  .company-icon { width:24px; height:24px; vertical-align:middle; margin-right:8px; border-radius:4px; opacity:.9; }
+  .card-title { font-size:20px; font-weight:700; line-height:1.4; margin-bottom:12px; color:#f0f0f0; transition:color .2s; }
+  .card-original { font-family:'DM Mono',monospace; font-size:11px; color:#666; margin-bottom:10px; }
+  .card-summary { font-size:14px; line-height:1.8; color:#bbb; margin-bottom:16px; font-weight:400; }
+
+  .card-why { background:#16162a; border-left:2px solid #6366f1; padding:12px 16px; border-radius:0 8px 8px 0; }
+  .why-label { font-family:'DM Mono',monospace; font-size:10px; color:#6366f1; letter-spacing:1.5px; display:block; margin-bottom:4px; font-weight:700; }
+  .why-text { font-size:13px; color:#aaa; line-height:1.6; font-weight:500; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+</style>
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-rule"></div>
+    <h1>The Signal</h1>
+    <div class="date">2026. 04. 01. Wednesday</div>
+    <div class="edition">AI Daily Briefing — 5 stories from 10 sources</div>
+    <a href="archive/" style="font-family:'DM Mono',monospace;font-size:11px;color:#6366f1;text-decoration:none;margin-top:8px;display:inline-block;">Past Briefings →</a>
+  </header>
+  <main class="container">
+        <article class="card" style="animation-delay:0.0s">
+          <div class="card-head">
+            <span class="num">01</span>
+            <span class="badge">LLM</span>
+            <span class="sources">3개 매체 보도</span>
+          </div>
+          <a href="https://www.theverge.com/ai-artificial-intelligence/904776/anthropic-claude-source-code-leak" target="_blank" class="card-link">
+            <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=anthropic.com&sz=64" alt="">클로드 코드 유출: 타마고치 스타일 펫 노출</h2>
+          </a>
+          <div class="card-original">Claude Code leak exposes a Tamagotchi-style ‘pet’ and an always-on agent</div>
+          <p class="card-summary">Anthropic의 Claude Code 2.1.88 업데이트 후, 사용자들은 TypeScript 코드베이스가 포함된 소스 맵 파일을 발견했다. 유출된 데이터에는 타마고치 스타일의 '펫' 기능과 상시 작동 에이전트 관련 정보가 포함된 것으로 알려졌다.</p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text">Claude의 소스 코드 유출은 AI 모델의 내부 작동 방식과 Anthropic의 잠재적인 기능 개발 계획을 드러내며, AI 개발사의 보안 문제에 대한 경각심을 일깨운다.</span>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.12s">
+          <div class="card-head">
+            <span class="num">02</span>
+            <span class="badge">기업동향</span>
+            <span class="sources">2개 매체 보도</span>
+          </div>
+          <a href="https://the-decoder.com/openai-officially-confirms-mega-funding-round-and-chatgpt-super-app/" target="_blank" class="card-link">
+            <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=openai.com&sz=64" alt="">OpenAI, 대규모 투자 유치 및 ChatGPT 슈퍼 앱 발표</h2>
+          </a>
+          <div class="card-original">OpenAI officially confirms mega-funding round and ChatGPT super app</div>
+          <p class="card-summary">OpenAI는 1,220억 달러의 자금 조달 라운드를 마감하고 8,520억 달러의 기업 가치를 달성했으며, ChatGPT 슈퍼 앱을 공식적으로 공개했다. 이는 기업 시장으로의 강력한 전환을 시사한다.</p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text">OpenAI의 대규모 자금 조달과 ChatGPT 슈퍼 앱 출시는 AI 산업의 폭발적인 성장세와 기업용 AI 시장으로의 전략적 확장을 명확히 보여준다.</span>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.24s">
+          <div class="card-head">
+            <span class="num">03</span>
+            <span class="badge">이미지AI</span>
+            <span class="sources">2개 매체 보도</span>
+          </div>
+          <a href="https://www.marktechpost.com/2026/03/31/google-ai-releases-veo-3-1-lite-giving-developers-low-cost-high-speed-video-generation-via-the-gemini-api/" target="_blank" class="card-link">
+            <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=google.com&sz=64" alt="">Google AI, 저비용 고속 비디오 생성 모델 Veo 3.1 Lite 출시</h2>
+          </a>
+          <div class="card-original">Google AI Releases Veo 3.1 Lite: Giving Developers Low Cost High Speed Video Generation via The Gemini API</div>
+          <p class="card-summary">Google은 생산 규모 배포의 주요 병목인 가격 문제를 해결하기 위해 생성형 비디오 포트폴리오의 새로운 모델 티어인 Veo 3.1 Lite 출시를 발표했다. 이 모델은 개발자들에게 Gemini API를 통해 저렴한 비용으로 고속 비디오 생성을 제공한다.</p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text">Google의 Veo 3.1 Lite 출시는 생성형 비디오 기술의 상업적 활용성을 높이고 개발자들이 더 쉽게 접근할 수 있게 하여, AI 비디오 생성 시장의 확대를 가속화할 것이다.</span>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.36s">
+          <div class="card-head">
+            <span class="num">04</span>
+            <span class="badge">로보틱스</span>
+            <span class="sources">1개 매체 보도</span>
+          </div>
+          <a href="https://www.theverge.com/ai-artificial-intelligence/905012/baidu-apollo-robotaxi-freeze-china" target="_blank" class="card-link">
+            <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=baidu.com&sz=64" alt="">바이두 로보택시, 교통 체증 중 멈춰 대혼란 초래</h2>
+          </a>
+          <div class="card-original">Baidu’s robotaxis froze in traffic, creating chaos</div>
+          <p class="card-summary">중국 기술 대기업 바이두가 운영하는 여러 대의 로보택시가 화요일 주요 도시에서 멈춰 섰고, 이로 인해 승객들이 차량 안에 갇히고 고속도로에 발이 묶였으며 최소 한 건의 사고가 발생한 것으로 알려졌다. 우한 경찰은 바이두 아폴로 고 로보택시의 정지 보고를 여러 건 접수했다고 확인했다.</p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text">바이두 로보택시의 갑작스러운 운행 중단 사태는 자율주행 기술의 안정성과 신뢰성 문제에 대한 우려를 심화시키며, 상용화를 위한 기술적 보완의 필요성을 강조한다.</span>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.48s">
+          <div class="card-head">
+            <span class="num">05</span>
+            <span class="badge">기업동향</span>
+            <span class="sources">1개 매체 보도</span>
+          </div>
+          <a href="https://www.artificialintelligence-news.com/news/hershey-applies-ai-across-its-supply-chain-operations/" target="_blank" class="card-link">
+            <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=hersheys.com&sz=64" alt="">허쉬, 공급망 운영 전반에 AI 적용</h2>
+          </a>
+          <div class="card-original">Hershey applies AI across its supply chain operations</div>
+          <p class="card-summary">허쉬는 공급망 운영 전반에 인공지능을 적용하고 있다. AI는 소프트웨어를 넘어 비즈니스의 물리적 측면으로 확장되어, 식품 생산 및 물류 기업들이 장기 계획이 아닌 일상적인 의사결정을 지원하는 데 데이터 시스템을 활용하기 시작했다.</p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text">허쉬의 AI 기반 공급망 운영 적용은 AI가 단순 소프트웨어를 넘어 실제 비즈니스 운영의 일상적 의사결정을 지원하며 다양한 산업으로 확산되고 있음을 보여준다.</span>
+          </div>
+        </article></main>
+</body>
+</html>

@@ -1,21 +1,21 @@
 """
 THE SIGNAL — GitHub Actions 빌드 스크립트
-RSS 수집 → 클러스터링 → Gemini 요약 → HTML 생성 → public/ 배포.
-아카이브는 archive/ 디렉토리에 커밋으로 보존.
+RSS 수집 → 클러스터링 → Gemini 요약 → HTML 배포 + 아카이브 + Discord 알림.
 """
 
 import os
 import shutil
 from signal_core import (
     fetch_rss, cluster_articles, curate_with_gemini,
-    build_html, build_error_html, now_kst,
+    build_html, build_error_html, notify_discord, generate_tts, now_kst,
 )
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK", "")
+PAGES_URL = os.environ.get("PAGES_URL", "https://davidking981218-rgb.github.io/the-signal/")
 
 
 def build_archive_index(archive_dir: str) -> str:
-    """아카이브 목록 HTML을 생성한다."""
     files = []
     if os.path.exists(archive_dir):
         for f in sorted(os.listdir(archive_dir), reverse=True):
@@ -44,7 +44,6 @@ def build_archive_index(archive_dir: str) -> str:
 def main():
     today_str = now_kst().strftime("%Y-%m-%d")
 
-    # archive/ 는 레포 루트에 커밋으로 보존됨 → public/archive/ 로 복사
     os.makedirs("public/archive", exist_ok=True)
     if os.path.exists("archive"):
         for f in os.listdir("archive"):
@@ -59,7 +58,7 @@ def main():
         return
 
     try:
-        raw = fetch_rss()
+        raw, feed_status = fetch_rss()
         if not raw:
             raise RuntimeError("RSS 피드에서 수집된 뉴스가 없습니다.")
 
@@ -69,7 +68,8 @@ def main():
         if not articles:
             raise RuntimeError("Gemini 큐레이션 결과가 비어있습니다.")
 
-        html = build_html(articles, archive_link="archive/")
+        tts_data = generate_tts(articles)
+        html = build_html(articles, archive_link="archive/", feed_status=feed_status, tts_data=tts_data)
 
     except Exception as e:
         print(f"✗ 빌드 실패: {e}")
@@ -80,22 +80,21 @@ def main():
             f.write(build_archive_index("public/archive"))
         raise
 
-    # 성공: index.html 저장
+    # 성공
     with open("public/index.html", "w", encoding="utf-8") as f:
         f.write(html)
-
-    # 아카이브: public/archive/ 와 archive/ (레포 영구 보존) 양쪽에 저장
     with open(f"public/archive/{today_str}.html", "w", encoding="utf-8") as f:
         f.write(html)
     os.makedirs("archive", exist_ok=True)
     with open(f"archive/{today_str}.html", "w", encoding="utf-8") as f:
         f.write(html)
-
-    # 아카이브 인덱스 갱신
     with open("public/archive/index.html", "w", encoding="utf-8") as f:
         f.write(build_archive_index("public/archive"))
 
     print(f"✓ 배포 준비 완료 (archive/{today_str}.html 보존)")
+
+    # Discord 알림
+    notify_discord(DISCORD_WEBHOOK, articles, PAGES_URL)
 
 
 if __name__ == "__main__":

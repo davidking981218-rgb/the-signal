@@ -22,11 +22,12 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install feedparser google-generativeai scikit-learn
+        run: pip install feedparser google-generativeai scikit-learn edge-tts
 
       - name: Build briefing
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: python build.py
 
       # 아카이브를 레포에 커밋 (Pages 배포와 별도로 영구 보존)

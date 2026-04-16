@@ -7,7 +7,7 @@ import os
 import subprocess
 import tempfile
 
-from signal_core import fetch_rss, cluster_articles, curate_with_gemini, build_html
+from signal_core import fetch_rss, cluster_articles, curate_with_gemini, build_html, generate_tts
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
@@ -21,16 +21,16 @@ def main():
         print("   ✗ GEMINI_API_KEY 환경변수를 설정하세요.")
         return
 
-    raw = fetch_rss()
+    raw, feed_status = fetch_rss()
     if not raw:
         print("   ✗ RSS 수집 실패")
         return
 
     clustered = cluster_articles(raw)
     articles = curate_with_gemini(clustered, GEMINI_API_KEY)
-    html = build_html(articles)
+    tts_data = generate_tts(articles)
+    html = build_html(articles, feed_status=feed_status, tts_data=tts_data)
 
-    # 임시 파일에 저장 후 Edge 앱 모드로 열기
     print("[5/5] 앱 창 열기...")
     tmp = tempfile.NamedTemporaryFile(
         mode="w", suffix=".html", prefix="signal_brief_",

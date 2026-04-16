@@ -85,10 +85,22 @@ ENTITY_ALIASES = {
     "amd ": "amd",  # 뒤 공백으로 일반 단어 오탐 방지
     # 기타 자주 등장
     "palantir": "palantir",
+    # 한국어 별칭 (AI타임스 등 한국어 매체 카드 요약 매칭용)
+    # 주의: "메타"(메타버스/메타데이터), "라마"(드라마) 등 일반 단어 오탐 가능한 것은 제외
+    "오픈ai": "openai", "오픈에이아이": "openai", "챗gpt": "openai", "챗지피티": "openai",
+    "구글": "google", "딥마인드": "google", "제미나이": "google", "제미니": "google",
+    "앤트로픽": "anthropic", "클로드": "anthropic",
+    "마이크로소프트": "microsoft", "코파일럿": "microsoft",
+    "애플": "apple",
+    "엔비디아": "nvidia",
+    "아마존": "amazon",
+    "삼성": "samsung",
+    "퍼플렉시티": "perplexity",
+    "허깅페이스": "huggingface",
 }
 
-# 고유명사 → 파비콘 도메인 (코드에서 직접 매핑, 화이트리스트 역할)
-# Gemini 힌트의 company_domain 값도 이 딕셔너리의 values() 안에 있을 때만 수용한다.
+# 고유명사 → 파비콘 도메인 (Gemini 힌트 실패 시 백업 매칭용)
+# 주 경로는 Gemini company_domain 힌트이며, 이 딕셔너리는 Gemini가 실패했을 때만 사용된다.
 ENTITY_DOMAINS = {
     # 빅5
     "openai": "openai.com",
@@ -138,8 +150,37 @@ ENTITY_DOMAINS = {
     "palantir": "palantir.com",
 }
 
-# Gemini 힌트 검증용 화이트리스트 (소문자). 이 집합에 있는 도메인만 수용.
-_ALLOWED_DOMAINS = frozenset(d.lower() for d in ENTITY_DOMAINS.values())
+# 도메인 형식 검증 정규식 — Gemini가 반환한 company_domain이 실제 도메인 형태인지만 확인
+# 화이트리스트 대신 형식 검증만 수행 → 스탠포드/소프트뱅크 등 미리 등록 안 된 기관도 자동 커버
+# 통과 예: "openai.com", "stanford.edu", "softbank.jp", "group.softbank"
+# 탈락 예: "Stanford University", "www.stanford.edu/page", "openai", ""
+_DOMAIN_RE = re.compile(r"^(?!-)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$")
+
+
+def _is_valid_domain_format(s: str) -> bool:
+    """Gemini 힌트를 형식만으로 검증. DNS 조회는 하지 않는다."""
+    if not s or len(s) > 253:
+        return False
+    return bool(_DOMAIN_RE.match(s))
+
+
+def _earliest_entity_domain(text: str) -> str:
+    """텍스트에서 가장 앞에 등장한 엔티티의 도메인을 반환한다.
+    dict 순회 순서가 아니라 실제 등장 위치(index) 기준으로 가장 앞에 나온 주어를 뽑는다.
+    """
+    if not text:
+        return ""
+    text_lower = text.lower()
+    best_pos = len(text_lower) + 1
+    best_domain = ""
+    for keyword, canonical in ENTITY_ALIASES.items():
+        if canonical not in ENTITY_DOMAINS:
+            continue
+        pos = text_lower.find(keyword)
+        if pos != -1 and pos < best_pos:
+            best_pos = pos
+            best_domain = ENTITY_DOMAINS[canonical]
+    return best_domain
 
 # 매체별 신뢰도 가중치 (AI 기술 기사 품질 기준, 매체 수 동일 시 정렬에 사용)
 TIER_0_WEIGHT = 4  # 공식 1차 소스: 단 1곳만 보도해도 최상위로 올림
@@ -505,7 +546,7 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
     "why_kr": "왜 중요한가 (한국어 1문장)",
     "why_en": "왜 중요한가 (영어 1문장)",
     "why_jp": "왜 중요한가 (일본어 1문장)",
-    "company_domain": "토픽의 주인공 회사/기관의 공식 도메인 (예: openai.com, huggingface.co, cloudflare.com). 확실하지 않으면 빈 문자열 '' 사용. 추측 금지."
+    "company_domain": "기사의 주체(subject) 기업/기관/대학의 공식 웹사이트 도메인. 반드시 순수 도메인만 반환 (예: 'openai.com', 'stanford.edu', 'softbank.jp', 'naver.com', 'nec.com'). URL/프로토콜/경로 포함 금지(https://, www., /path 금지). 한국/일본 기업/기관도 반드시 도메인으로 반환 (예: 소프트뱅크→softbank.jp, 스탠포드→stanford.edu, 혼다→honda.com, NEC→nec.com). 주체가 여러 곳이면 가장 핵심 주어 1개만. 정말 모를 때만 빈 문자열 '' 반환."
   }}
 ]"""
 
@@ -547,26 +588,30 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
                 a["sources_jp"] = f"{count}社が報道"
                 a["original_title"] = topic["title"]
                 a["published"] = topic.get("date")
-                # 파비콘 도메인: 제목 우선 매칭, 없으면 본문에서 탐색
-                title_lower = topic['title'].lower()
-                summary_lower = topic['summary'].lower()
+                # 파비콘 도메인: Gemini가 반환한 company_domain 힌트를 우선 사용
+                # 화이트리스트 대신 형식 검증만 수행 → 사전 등록 안 된 기관도 자동 커버
+                # 형식 오류/환각 시 Google Favicon API가 기본 globe 아이콘을 반환하므로 피해 최소
                 domain = ""
-                # 1차: 제목 substring 매칭 (하드코딩된 ENTITY_ALIASES → ENTITY_DOMAINS)
-                for keyword, canonical in ENTITY_ALIASES.items():
-                    if keyword in title_lower and canonical in ENTITY_DOMAINS:
-                        domain = ENTITY_DOMAINS[canonical]
-                        break
-                # 2차: 본문 substring 매칭
+                hint = str(a.get("company_domain", "")).strip().lower()
+                # Gemini가 가끔 "https://openai.com" 같은 걸 주면 도메인만 추출 시도
+                if hint.startswith("http://") or hint.startswith("https://"):
+                    hint = hint.split("://", 1)[1]
+                if hint.startswith("www."):
+                    hint = hint[4:]
+                hint = hint.split("/", 1)[0].strip()
+                if _is_valid_domain_format(hint):
+                    domain = hint
+                # 백업 1: Gemini가 도메인을 못 줬을 때 한국어 요약에서 빅5/빅테크 엔티티 뽑기
                 if not domain:
-                    for keyword, canonical in ENTITY_ALIASES.items():
-                        if keyword in summary_lower and canonical in ENTITY_DOMAINS:
-                            domain = ENTITY_DOMAINS[canonical]
-                            break
-                # 3차: Gemini 힌트 (화이트리스트 검증 — 환각 방지)
+                    domain = _earliest_entity_domain(a.get("summary_kr", ""))
+                # 백업 2: 한국어 제목
                 if not domain:
-                    hint = str(a.get("company_domain", "")).strip().lower()
-                    if hint and hint in _ALLOWED_DOMAINS:
-                        domain = hint
+                    domain = _earliest_entity_domain(a.get("title_kr", ""))
+                # 백업 3: 원본 영문 제목/본문
+                if not domain:
+                    domain = _earliest_entity_domain(topic.get("title", ""))
+                if not domain:
+                    domain = _earliest_entity_domain(topic.get("summary", ""))
                 a["company"] = domain
                 verified.append(a)
 

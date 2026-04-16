@@ -171,23 +171,25 @@ def _is_valid_domain_format(s: str) -> bool:
     return bool(_DOMAIN_RE.match(s))
 
 
-def _earliest_entity_domain(text: str) -> str:
-    """텍스트에서 가장 앞에 등장한 엔티티의 도메인을 반환한다.
-    dict 순회 순서가 아니라 실제 등장 위치(index) 기준으로 가장 앞에 나온 주어를 뽑는다.
+def _most_mentioned_entity_domain(*texts: str) -> str:
+    """여러 텍스트를 합쳐서 가장 많이 언급된 엔티티의 도메인을 반환한다.
+    빈도수 기반이라 '구글이 오픈AI에 대응...' 같은 경우에도
+    실제 주인공(더 많이 언급된 쪽)을 정확히 잡는다.
     """
-    if not text:
+    combined = " ".join(t for t in texts if t).lower()
+    if not combined:
         return ""
-    text_lower = text.lower()
-    best_pos = len(text_lower) + 1
-    best_domain = ""
+    counts: dict[str, int] = {}  # canonical → 등장 횟수
     for keyword, canonical in ENTITY_ALIASES.items():
         if canonical not in ENTITY_DOMAINS:
             continue
-        pos = text_lower.find(keyword)
-        if pos != -1 and pos < best_pos:
-            best_pos = pos
-            best_domain = ENTITY_DOMAINS[canonical]
-    return best_domain
+        n = combined.count(keyword)
+        if n > 0:
+            counts[canonical] = counts.get(canonical, 0) + n
+    if not counts:
+        return ""
+    winner = max(counts, key=counts.get)
+    return ENTITY_DOMAINS[winner]
 
 # 매체별 신뢰도 가중치 (AI 기술 기사 품질 기준, 매체 수 동일 시 정렬에 사용)
 TIER_0_WEIGHT = 4  # 공식 1차 소스: 단 1곳만 보도해도 최상위로 올림
@@ -627,17 +629,20 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
                 a["brand_key"] = topic.get("brand_key", "")
                 # 파비콘 도메인 결정 순서
                 # 0차: Tier 0 매체가 클러스터에 있으면 해당 브랜드의 공식 도메인 강제
-                #      (요약문에 회사명이 없어도 "공식 블로그"임이 확실하므로 당연히 그 회사 파비콘)
                 domain = ""
                 brand_key_for_icon = topic.get("brand_key", "")
                 if brand_key_for_icon and brand_key_for_icon in BRAND_FAVICON_DOMAIN:
                     domain = BRAND_FAVICON_DOMAIN[brand_key_for_icon]
-                # 1차: Gemini가 반환한 company_domain 힌트 (형식 검증만)
-                #      화이트리스트 대신 형식 검증만 수행 → 사전 등록 안 된 기관도 자동 커버
-                #      형식 오류/환각 시 Google Favicon API가 기본 globe 아이콘을 반환하므로 피해 최소
+                # 1차: 텍스트 빈도수 기반 (AI 안 씀, 환각 없음)
+                #      모든 텍스트를 합쳐서 가장 많이 언급된 회사 = 주인공
+                if not domain:
+                    domain = _most_mentioned_entity_domain(
+                        a.get("summary_kr", ""), a.get("title_kr", ""),
+                        topic.get("title", ""), topic.get("summary", ""),
+                    )
+                # 2차: Gemini 힌트 (빈도수로 못 찾았을 때만, 형식 검증)
                 if not domain:
                     hint = str(a.get("company_domain", "")).strip().lower()
-                    # Gemini가 가끔 "https://openai.com" 같은 걸 주면 도메인만 추출 시도
                     if hint.startswith("http://") or hint.startswith("https://"):
                         hint = hint.split("://", 1)[1]
                     if hint.startswith("www."):
@@ -645,17 +650,6 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
                     hint = hint.split("/", 1)[0].strip()
                     if _is_valid_domain_format(hint):
                         domain = hint
-                # 백업 1: Gemini가 도메인을 못 줬을 때 한국어 요약에서 빅5/빅테크 엔티티 뽑기
-                if not domain:
-                    domain = _earliest_entity_domain(a.get("summary_kr", ""))
-                # 백업 2: 한국어 제목
-                if not domain:
-                    domain = _earliest_entity_domain(a.get("title_kr", ""))
-                # 백업 3: 원본 영문 제목/본문
-                if not domain:
-                    domain = _earliest_entity_domain(topic.get("title", ""))
-                if not domain:
-                    domain = _earliest_entity_domain(topic.get("summary", ""))
                 a["company"] = domain
                 verified.append(a)
 

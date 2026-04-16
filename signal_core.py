@@ -37,89 +37,173 @@ TTS_VOICES = {
     "jp": "ja-JP-NanamiNeural",
 }
 
-# AI 분야 주요 고유명사 사전 (TF-IDF가 못 잡는 동의어/약칭 매핑)
+# AI 분야 주요 고유명사 사전 (제목/본문 매칭 → 파비콘 도메인 매핑)
+# 주의: substring 매칭이므로 "intel", "arm", "character", "figure" 처럼
+# 일반 단어에 섞여 오탐될 수 있는 키워드는 피한다.
 ENTITY_ALIASES = {
+    # 빅5
     "openai": "openai", "open ai": "openai", "chatgpt": "openai", "gpt-4": "openai", "gpt-5": "openai", "sam altman": "openai",
     "google": "google", "deepmind": "google", "gemini": "google",
     "anthropic": "anthropic", "claude": "anthropic", "dario amodei": "anthropic",
     "meta": "meta", "llama": "meta", "zuckerberg": "meta",
     "microsoft": "microsoft", "copilot": "microsoft", "satya nadella": "microsoft",
+    # 빅테크
     "apple": "apple", "apple intelligence": "apple",
     "nvidia": "nvidia", "jensen huang": "nvidia",
-    "mistral": "mistral", "stability": "stability", "midjourney": "midjourney",
+    "amazon": "amazon", "aws": "amazon",
+    "ibm": "ibm", "oracle": "oracle",
+    "samsung": "samsung",
+    "tencent": "tencent", "baidu": "baidu",
+    # 주요 AI 스타트업/모델
+    "mistral": "mistral",
+    "stability": "stability",
+    "midjourney": "midjourney",
     "xai": "xai", "grok": "xai", "elon musk": "xai",
+    "cohere": "cohere",
+    "perplexity": "perplexity",
+    "databricks": "databricks",
+    "character.ai": "character_ai", "character ai": "character_ai",
+    "elevenlabs": "elevenlabs", "eleven labs": "elevenlabs",
+    "runway": "runway", "runwayml": "runway",
+    "suno": "suno",
+    "groq": "groq",
+    "sakana": "sakana",
+    # 중국 AI
+    "alibaba": "alibaba", "qwen": "alibaba",
+    "deepseek": "deepseek",
+    "bytedance": "bytedance", "tiktok": "bytedance",
+    # 클라우드/인프라
+    "cloudflare": "cloudflare",
+    "hugging face": "huggingface", "huggingface": "huggingface",
+    "vercel": "vercel",
+    # 로봇
+    "unitree": "unitree", "유니트리": "unitree",
+    "figure.ai": "figure_ai", "figure ai": "figure_ai",
+    "boston dynamics": "boston_dynamics",
+    # 반도체/하드웨어
+    "tsmc": "tsmc",
+    "amd ": "amd",  # 뒤 공백으로 일반 단어 오탐 방지
+    # 기타 자주 등장
+    "palantir": "palantir",
 }
 
-# 고유명사 → 파비콘 도메인 (코드에서 직접 매핑, Gemini에게 맡기지 않음)
+# 고유명사 → 파비콘 도메인 (코드에서 직접 매핑, 화이트리스트 역할)
+# Gemini 힌트의 company_domain 값도 이 딕셔너리의 values() 안에 있을 때만 수용한다.
 ENTITY_DOMAINS = {
+    # 빅5
     "openai": "openai.com",
     "google": "google.com",
     "anthropic": "anthropic.com",
     "meta": "meta.com",
     "microsoft": "microsoft.com",
+    # 빅테크
     "apple": "apple.com",
     "nvidia": "nvidia.com",
+    "amazon": "aws.amazon.com",
+    "ibm": "ibm.com",
+    "oracle": "oracle.com",
+    "samsung": "samsung.com",
+    "tencent": "tencent.com",
+    "baidu": "baidu.com",
+    # AI 스타트업/모델
     "mistral": "mistral.ai",
     "stability": "stability.ai",
     "midjourney": "midjourney.com",
     "xai": "x.ai",
+    "cohere": "cohere.com",
+    "perplexity": "perplexity.ai",
+    "databricks": "databricks.com",
+    "character_ai": "character.ai",
+    "elevenlabs": "elevenlabs.io",
+    "runway": "runwayml.com",
+    "suno": "suno.com",
+    "groq": "groq.com",
+    "sakana": "sakana.ai",
+    # 중국 AI
+    "alibaba": "alibabagroup.com",
+    "deepseek": "deepseek.com",
+    "bytedance": "bytedance.com",
+    # 클라우드/인프라
+    "cloudflare": "cloudflare.com",
+    "huggingface": "huggingface.co",
+    "vercel": "vercel.com",
+    # 로봇
+    "unitree": "unitree.com",
+    "figure_ai": "figure.ai",
+    "boston_dynamics": "bostondynamics.com",
+    # 반도체
+    "tsmc": "tsmc.com",
+    "amd": "amd.com",
+    # 기타
+    "palantir": "palantir.com",
 }
+
+# Gemini 힌트 검증용 화이트리스트 (소문자). 이 집합에 있는 도메인만 수용.
+_ALLOWED_DOMAINS = frozenset(d.lower() for d in ENTITY_DOMAINS.values())
 
 # 매체별 신뢰도 가중치 (AI 기술 기사 품질 기준, 매체 수 동일 시 정렬에 사용)
 TIER_0_WEIGHT = 4  # 공식 1차 소스: 단 1곳만 보도해도 최상위로 올림
 SOURCE_WEIGHT = {
-    # Tier 0 — 공식 1차 소스 (OpenAI/Google/Anthropic 등. 단독 보도라도 무조건 최상위)
+    # Tier 0 — 공식 1차 소스 (단독 보도라도 무조건 최상위)
     "OpenAI News": 4,
-    "The latest research from Google": 4,          # Google Research
-    "Hugging Face - Blog": 4,
-    "Google DeepMind News": 4,
-    "Anthropic News": 4,                            # 커뮤니티 피드 (taobojlen/anthropic-rss-feed)
-    # Tier 1 — AI 기술 속보 + 깊이
+    "The latest research from Google": 4,              # Google Research
+    "Google DeepMind News": 4,                          # DeepMind (Gemma, AlphaFold 등 프론티어 연구 발표)
+    "Anthropic News": 4,                                # 커뮤니티 피드 (taobojlen/anthropic-rss-feed)
+    "NVIDIA Blog": 4,                                   # AI/로봇/GPU 공식
+    "Microsoft Research": 4,                            # Copilot/Azure AI 연구
+    # Tier 1 — AI 기술 속보 + 권위 저널
     "AI News & Artificial Intelligence | TechCrunch": 3,
     "AI | The Verge": 3,
     "AI | VentureBeat": 3,
     "The Decoder": 3,
-    # Tier 2 — AI 전문 매체
+    "IEEE Spectrum": 3,                                  # 기술 학회지
+    "Artificial intelligence – MIT Technology Review": 3,  # 권위 저널리즘
+    # Tier 2 — AI 전문 매체 + 실용지
     "MarkTechPost": 2,
     "DailyAI": 2,
-    "AI News": 2,
     "Synced": 2,
     "The Rundown AI": 2,
+    "Latest stories for ZDNET in Artificial Intelligence": 2,
+    "Simon Willison's Weblog": 2,                        # AI 해설 개인 블로그 (매일 업데이트)
     "AI타임스 - AI기술": 2,
     "AI타임스 - AI산업": 2,
     "ITmedia AI＋ 最新記事一覧": 2,
     # Tier 3 — 종합 테크 (AI 외 기사 많음)
-    "Feed: Artificial Intelligence Latest": 1,  # Wired
-    "Biz & IT - Ars Technica": 1,
+    "Feed: Artificial Intelligence Latest": 1,           # Wired
 }
 _DEFAULT_WEIGHT = 1
 
 RSS_FEEDS = [
     # Tier 0 — 공식 1차 소스 (공식 발표, 논문, 연구 블로그)
-    "https://openai.com/news/rss.xml",              # OpenAI News
-    "https://research.google/blog/rss",              # Google Research
-    "https://huggingface.co/blog/feed.xml",          # Hugging Face Blog
-    "https://deepmind.google/blog/rss.xml",          # Google DeepMind
-    "https://raw.githubusercontent.com/taobojlen/anthropic-rss-feed/main/anthropic_news_rss.xml",  # Anthropic News (커뮤니티 피드, 매일 자동 갱신)
+    "https://openai.com/news/rss.xml",                                          # OpenAI News
+    "https://research.google/blog/rss",                                         # Google Research
+    "https://deepmind.google/blog/rss.xml",                                     # Google DeepMind
+    "https://raw.githubusercontent.com/taobojlen/anthropic-rss-feed/main/anthropic_news_rss.xml",  # Anthropic News (커뮤니티 피드)
+    "https://blogs.nvidia.com/feed/",                                           # NVIDIA Blog
+    "https://www.microsoft.com/en-us/research/feed/",                           # Microsoft Research
     # 종합 테크 (AI 섹션) — 속보 겹침 가능성 높음
     "https://techcrunch.com/category/artificial-intelligence/feed/",
     "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
     "https://venturebeat.com/category/ai/feed/",
     "https://www.wired.com/feed/tag/ai/latest/rss",
-    "https://feeds.arstechnica.com/arstechnica/technology-lab",
     # AI 전문 매체 — 매일 다수 기사, 같은 사건 중복 보도
     "https://the-decoder.com/feed/",
     "https://www.marktechpost.com/feed/",
     "https://dailyai.com/feed/",
-    "https://www.artificialintelligence-news.com/feed/",
     "https://syncedreview.com/feed/",
+    # 권위 있는 기술 저널
+    "https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss",        # IEEE Spectrum (AI)
+    "https://www.technologyreview.com/topic/artificial-intelligence/feed/",     # MIT Technology Review (AI)
+    "https://www.zdnet.com/topic/artificial-intelligence/news/rss.xml",         # ZDNet AI
     # AI 뉴스레터 — 주요 뉴스 큐레이션
-    "https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml",  # The Rundown AI
+    "https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml",                             # The Rundown AI
+    # 개인 AI 해설 블로그
+    "https://simonwillison.net/atom/everything/",                               # Simon Willison's Weblog
     # 한국 AI 전문 (카테고리 분리 — allArticle 오염 제거)
-    "https://www.aitimes.com/rss/S1N24.xml",         # AI타임스 - AI기술
-    "https://www.aitimes.com/rss/S1N3.xml",          # AI타임스 - AI산업
+    "https://www.aitimes.com/rss/S1N24.xml",                                    # AI타임스 - AI기술
+    "https://www.aitimes.com/rss/S1N3.xml",                                     # AI타임스 - AI산업
     # 일본 AI 전문
-    "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",  # ITmedia AI+
+    "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",                             # ITmedia AI+
 ]
 
 
@@ -420,7 +504,8 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
     "summary_jp": "일본어 핵심 요약 (2~3문장)",
     "why_kr": "왜 중요한가 (한국어 1문장)",
     "why_en": "왜 중요한가 (영어 1문장)",
-    "why_jp": "왜 중요한가 (일본어 1문장)"
+    "why_jp": "왜 중요한가 (일본어 1문장)",
+    "company_domain": "토픽의 주인공 회사/기관의 공식 도메인 (예: openai.com, huggingface.co, cloudflare.com). 확실하지 않으면 빈 문자열 '' 사용. 추측 금지."
   }}
 ]"""
 
@@ -466,15 +551,22 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
                 title_lower = topic['title'].lower()
                 summary_lower = topic['summary'].lower()
                 domain = ""
+                # 1차: 제목 substring 매칭 (하드코딩된 ENTITY_ALIASES → ENTITY_DOMAINS)
                 for keyword, canonical in ENTITY_ALIASES.items():
                     if keyword in title_lower and canonical in ENTITY_DOMAINS:
                         domain = ENTITY_DOMAINS[canonical]
                         break
+                # 2차: 본문 substring 매칭
                 if not domain:
                     for keyword, canonical in ENTITY_ALIASES.items():
                         if keyword in summary_lower and canonical in ENTITY_DOMAINS:
                             domain = ENTITY_DOMAINS[canonical]
                             break
+                # 3차: Gemini 힌트 (화이트리스트 검증 — 환각 방지)
+                if not domain:
+                    hint = str(a.get("company_domain", "")).strip().lower()
+                    if hint and hint in _ALLOWED_DOMAINS:
+                        domain = hint
                 a["company"] = domain
                 verified.append(a)
 
@@ -490,6 +582,10 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
 
     if not verified:
         raise RuntimeError(f"Gemini {GEMINI_MAX_RETRIES}회 시도 후에도 검증 통과 뉴스 없음")
+
+    # cluster_articles의 정렬 순서 복원 (Tier 0 우선 → 매체 수 → 신뢰도)
+    # Gemini가 프롬프트 규칙에 따라 순서를 바꿔 반환할 수 있으므로 topic_index 기준으로 재정렬
+    verified.sort(key=lambda a: a.get("topic_index", 999))
 
     print(f"   ✓ {len(verified)}개 뉴스 검증 통과")
     return verified

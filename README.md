@@ -9,18 +9,18 @@
 ```
 RSS 22개 매체 (EN/KR/JP, Tier 0 공식 소스 6개 포함)
     ↓
+AI 관련성 2단계 필터 (영어 정규식 + 한/일 substring)
+    ↓
 Gemini Embedding (gemini-embedding-001) — 의미 벡터화
     ↓
 코사인 유사도 0.85 이상 → Union-Find 클러스터링 (다국어 매칭)
-    ↓
-AI 관련성 2단계 필터 (영어 정규식 + 한/일 substring)
     ↓
 정렬: Tier 0 여부 → 매체 수 → 매체 신뢰도
     ↓
 Gemini 2.5 Flash → 3개 국어 요약 + URL/매체수 교차 검증 (환각 방지)
     ↓
-Edge TTS → 언어별 맞춤 음성 생성 (KR/EN/JP)
-    ↓
+Gemini 3.1 Flash TTS (Charon) → 중저음 남성 음성 생성 (KR/EN/JP)
+  ↓ (API 실패 시 Edge TTS 자동 폴백)
 GitHub Actions (매일 05:00 KST) → GitHub Pages 자동 배포
 ```
 
@@ -35,7 +35,7 @@ GitHub Actions (매일 05:00 KST) → GitHub Pages 자동 배포
 - **기사 파비콘 — Gemini 힌트 우선 + 형식 검증** — Gemini가 반환한 `company_domain`을 정규식으로 형식만 검증해 수용. 하드코딩 화이트리스트 없이 스탠포드/소프트뱅크 등 모든 기관 자동 커버. 실패 시 빅5 하드코딩 사전(`ENTITY_ALIASES`)이 백업
 - **Tier 0 공식 매체 브랜드 컬러** — 클러스터에 공식 1차 소스가 포함되면 카드 상단에 4px 브랜드 액센트 바 + 테두리 + 배경 방사 글로우를 해당 회사 색으로 표시. OpenAI 민트(#10a37f) / Anthropic Claude 주황(#cc785c) / Google·DeepMind Gemini 4색 그라데이션 / NVIDIA 시그니처 그린(#76b900) / Microsoft Azure 블루(#0078d4)
 - **3개 국어 지원** — 한국어 / English / 日本語 실시간 전환 (원문 보기 버튼까지 번역)
-- **Edge TTS 음성 브리핑** — 언어별 맞춤 번호 안내 + Spotify 스타일 플레이어
+- **Gemini 3.1 Flash TTS 음성 브리핑** — Google 최신 TTS 모델(Charon, 중저음 남성)로 뉴스 낭독. 무료 티어 3RPM 준수(25초 간격). API 장애 시 Edge TTS 자동 폴백. Spotify 스타일 플레이어
 - **매체 신뢰도 자동 학습** — 7일치 통계 쌓이면 교차 보도율 기반 자동 재분류 (Tier 0는 보호)
 - **아카이브** — 과거 브리핑 HTML을 git 커밋으로 영구 보존
 - **Discord 알림** — 웹훅 설정 시 매일 새 브리핑 헤드라인 전송
@@ -52,10 +52,10 @@ GitHub Actions (매일 05:00 KST) → GitHub Pages 자동 배포
 ## Tech Stack
 
 - Python 3.12
-- Gemini API 2.5 Flash (요약) + gemini-embedding-001 (클러스터링) — 무료 티어
+- Gemini API 2.5 Flash (요약) + gemini-embedding-001 (클러스터링) + **3.1 Flash TTS (음성)** — 무료 티어
 - google-genai (신규 SDK, 구 `google-generativeai`는 deprecated)
 - numpy (코사인 유사도 계산)
-- edge-tts (음성 합성)
+- edge-tts (TTS 폴백용)
 - feedparser (RSS)
 - GitHub Actions + GitHub Pages
 
@@ -87,10 +87,15 @@ pip install feedparser google-genai numpy edge-tts
 ```bash
 # Windows
 setx GEMINI_API_KEY "your-key-here"
+setx GEMINI_TTS_API_KEY "your-tts-key-here"
 
 # Mac/Linux
 export GEMINI_API_KEY="your-key-here"
+export GEMINI_TTS_API_KEY="your-tts-key-here"
 ```
+
+> `GEMINI_TTS_API_KEY`는 별도 GCP 프로젝트에서 발급하면 요약용과 한도가 분리됩니다.
+> 미설정 시 Edge TTS로 자동 폴백되므로 선택사항입니다.
 
 ### 4. 로컬 실행
 
@@ -102,7 +107,8 @@ python ai_briefing.py
 
 1. 레포 fork 또는 clone
 2. GitHub Settings > Secrets에 `GEMINI_API_KEY` 등록
-3. (선택) `DISCORD_WEBHOOK` 등록하면 매일 알림 발송
+3. (선택) `GEMINI_TTS_API_KEY` 등록하면 Gemini 3.1 Flash TTS 사용 (미등록 시 Edge TTS)
+4. (선택) `DISCORD_WEBHOOK` 등록하면 매일 알림 발송
 4. Actions가 매일 05:00 KST에 자동 빌드 + 배포
 
 ## News Sources (22)
@@ -150,7 +156,8 @@ Tier 0(OpenAI/Google/Anthropic 등)가 단독으로 보도한 뉴스는 **다른
 | `검증 통과 N개 < 5개` | RSS에서 AI 기사가 부족한 날. 24시간 cutoff가 36시간으로 자동 확장됨 |
 | 뉴스가 AI와 무관 | 2단계 필터 통과한 것. `filter_ai_relevant`의 블랙/화이트리스트 확장 가능 |
 | 기사 파비콘이 다른 회사 | 주 경로는 Gemini `company_domain` 힌트(형식 검증만). 형식 오류/빈 값이면 `ENTITY_ALIASES` 백업이 동작. Gemini 프롬프트(`summarize_articles` 내 `company_domain` 설명)를 강화하거나 백업 별칭 추가 |
-| TTS 음성 없음 | `pip install edge-tts` 확인, 인터넷 연결 필요 |
+| TTS 음성 없음 | `GEMINI_TTS_API_KEY` 확인. 미설정이면 Edge TTS 사용 (`pip install edge-tts`) |
+| Gemini TTS 429 에러 | 무료 티어 3RPM 초과. 25초 간격이 기본 적용되어 있으나, 연속 3회 실패 시 Edge TTS로 자동 전환 |
 | 피드 N/22 실패 (주황 배너) | 일시적 네트워크 문제, 나머지 피드로 정상 작동 |
 | 피드 절반 이상 실패 (빨강 배너) | RSS URL 변경 가능성, `RSS_FEEDS` 확인 |
 | Actions cron 미실행 | GitHub cron은 최대 30~60분 지연 가능, 수동 실행으로 대체 |

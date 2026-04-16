@@ -1,0 +1,75 @@
+{
+  "date": "2026-04-16",
+  "sources": {
+    "Simon Willison's Weblog": {
+      "total": 9,
+      "cross": 1,
+      "rate": 0.111
+    },
+    "Latest stories for ZDNET in Artificial Intelligence": {
+      "total": 6,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "ITmedia AI＋ 最新記事一覧": {
+      "total": 10,
+      "cross": 2,
+      "rate": 0.2
+    },
+    "AI | The Verge": {
+      "total": 5,
+      "cross": 3,
+      "rate": 0.6
+    },
+    "AI News & Artificial Intelligence | TechCrunch": {
+      "total": 14,
+      "cross": 5,
+      "rate": 0.357
+    },
+    "The Decoder": {
+      "total": 9,
+      "cross": 4,
+      "rate": 0.444
+    },
+    "AI타임스 - AI산업": {
+      "total": 20,
+      "cross": 2,
+      "rate": 0.1
+    },
+    "Feed: Artificial Intelligence Latest": {
+      "total": 4,
+      "cross": 1,
+      "rate": 0.25
+    },
+    "MarkTechPost": {
+      "total": 4,
+      "cross": 1,
+      "rate": 0.25
+    },
+    "Google DeepMind News": {
+      "total": 1,
+      "cross": 1,
+      "rate": 1.0
+    },
+    "NVIDIA Blog": {
+      "total": 2,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "OpenAI News": {
+      "total": 1,
+      "cross": 1,
+      "rate": 1.0
+    },
+    "The Rundown AI": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "Artificial intelligence – MIT Technology Review": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    }
+  }
+}

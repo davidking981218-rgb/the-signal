@@ -6,6 +6,11 @@
       "cross": 4,
       "rate": 0.2
     },
+    "MarkTechPost": {
+      "total": 4,
+      "cross": 0,
+      "rate": 0.0
+    },
     "Simon Willison's Weblog": {
       "total": 3,
       "cross": 2,
@@ -30,11 +35,6 @@
       "total": 8,
       "cross": 3,
       "rate": 0.375
-    },
-    "MarkTechPost": {
-      "total": 3,
-      "cross": 0,
-      "rate": 0.0
     },
     "AI News & Artificial Intelligence | TechCrunch": {
       "total": 6,

@@ -1,3 +1,13 @@
 public/
 __pycache__/
 *.pyc
+
+# 환경변수 / 시크릿
+.env
+.env.*
+*.key
+*.pem
+
+# OS
+Thumbs.db
+.DS_Store

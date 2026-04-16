@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE SIGNAL — AI Daily Briefing</title>
+<meta name="description" content="AI 뉴스 데일리 브리핑 — 11개 글로벌 매체에서 수집한 오늘의 AI 뉴스">
+<meta property="og:title" content="THE SIGNAL — 2026-04-03">
+<meta property="og:description" content="OpenAI, TBPN 토크쇼 인수. OpenAI가 AI 및 기술 리더들을 인터뷰하는 온라인 토크쇼 TBPN을 인수했습니다. 이 쇼는 샘 알트만 OpenAI CEO를 비롯해 메타, 마이크로소프트 등 주요 IT 기업 임원들을 출연시킵니다.">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="ko_KR">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d0d12; color:#e0e0e0; font-family:'Noto Sans KR',sans-serif; font-weight:600; min-height:100vh; }
+  #aurora { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+  .masthead { text-align:center; padding:48px 20px 32px; border-bottom:1px solid #1a1a2e; position:relative; z-index:1; }
+  .masthead-rule { width:60px; height:2px; background:linear-gradient(90deg,#6366f1,#a78bfa); margin:0 auto 18px; }
+  .masthead h1 { font-size:42px; font-weight:700; letter-spacing:6px; text-transform:uppercase; color:#f0f0f0; margin-bottom:8px; }
+  .masthead .date { font-family:'DM Mono',monospace; font-size:13px; color:#777; letter-spacing:1px; font-weight:500; }
+  .masthead .edition { font-family:'DM Mono',monospace; font-size:11px; color:#666; font-weight:500; margin-top:4px; }
+
+  .container { max-width:680px; margin:0 auto; padding:28px 20px 100px; display:flex; flex-direction:column; gap:16px; position:relative; z-index:1; }
+
+  .card { background:#12121c; border:1px solid #1e1e30; border-radius:12px; padding:24px; animation:fadeUp .5s ease both; transition:border-color .2s; cursor:pointer; }
+  .card:hover { border-color:#6366f180; }
+  .card:focus { outline:2px solid #6366f1; outline-offset:2px; }
+  .card.now-playing { border-color:#6366f1; box-shadow:0 0 20px #6366f120; }
+  .card-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+
+  .player { position:fixed; bottom:0; left:0; right:0; z-index:100; background:#0d0d12; border-top:1px solid #1e1e30; padding:12px 0 16px; }
+  .player-inner { max-width:680px; margin:0 auto; padding:0 24px; display:flex; align-items:center; gap:16px; }
+  .player-info { flex:1; min-width:0; }
+  .player-title { font-size:14px; color:#e0e0e0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .player-sub { font-size:12px; color:#555; font-weight:600; margin-top:2px; }
+  .player-controls { display:flex; align-items:center; gap:20px; }
+  .p-btn { border:none; background:transparent; color:#888; cursor:pointer; font-size:20px; padding:4px; transition:color .15s; font-weight:700; }
+  .p-btn:hover,.p-btn:focus { color:#e0e0e0; outline:none; }
+  .p-btn.main { color:#e0e0e0; font-size:26px; font-weight:700; }
+  .p-btn.main:hover,.p-btn.main:focus { color:#fff; }
+  .player-lang { display:flex; gap:4px; }
+  .pl-btn { font-family:'DM Mono',monospace; font-size:13px; padding:4px 10px; border:none; background:transparent; color:#444; cursor:pointer; transition:color .15s; font-weight:700; }
+  .pl-btn:hover,.pl-btn:focus { color:#999; outline:none; }
+  .pl-btn.active { color:#c4b5fd; }
+  .player-progress { position:absolute; top:0; left:0; right:0; height:2px; background:#1a1a2e; }
+  .player-progress-bar { height:100%; background:#6366f1; width:0%; transition:width .3s; }
+  .num { font-family:'DM Mono',monospace; font-size:13px; color:#6366f180; font-weight:700; }
+  .badge { font-size:12px; color:#c4b5fd; padding:4px 12px; border:1px solid #a78bfa40; border-radius:20px; font-weight:600; background:#a78bfa15; }
+  .sources { font-family:'DM Mono',monospace; font-size:11px; color:#777; font-weight:700; margin-left:auto; }
+  .card-time { font-family:'DM Mono',monospace; font-size:10px; color:#555; font-weight:500; }
+
+  .company-icon { width:24px; height:24px; vertical-align:middle; margin-right:8px; border-radius:4px; opacity:.9; }
+  .card-title { font-size:20px; font-weight:700; line-height:1.4; margin-bottom:12px; color:#f0f0f0; transition:color .2s; }
+  .card-original { font-family:'DM Mono',monospace; font-size:11px; color:#666; margin-bottom:10px; font-weight:500; }
+  .card-summary { font-size:14px; line-height:1.8; color:#bbb; margin-bottom:16px; font-weight:500; }
+
+  .card-why { background:#16162a; border-left:2px solid #6366f1; padding:12px 16px; border-radius:0 8px 8px 0; margin-bottom:14px; }
+  .why-label { font-family:'DM Mono',monospace; font-size:10px; color:#6366f1; letter-spacing:1.5px; display:block; margin-bottom:4px; font-weight:700; }
+  .why-text { font-size:13px; color:#aaa; line-height:1.6; font-weight:600; }
+
+  .card-source { display:inline-block; font-family:'DM Mono',monospace; font-size:11px; color:#6366f1; text-decoration:none; padding:6px 14px; border:1px solid #6366f140; border-radius:6px; transition:all .15s; font-weight:600; }
+  .card-source:hover,.card-source:focus { background:#6366f115; border-color:#6366f180; color:#a78bfa; outline:none; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── 모바일 반응형 ── */
+  @media (max-width: 600px) {
+    .masthead { padding:32px 16px 24px; }
+    .masthead h1 { font-size:28px; letter-spacing:4px; }
+    .masthead .date { font-size:11px; }
+    .container { padding:16px 12px 90px; gap:12px; }
+    .card { padding:16px; }
+    .card-title { font-size:16px; }
+    .card-summary { font-size:13px; line-height:1.7; }
+    .card-head { gap:6px; }
+    .badge { font-size:10px; padding:3px 8px; }
+    .sources { font-size:10px; }
+    .why-text { font-size:12px; }
+    .player-inner { padding:0 12px; gap:10px; }
+    .player-title { font-size:12px; }
+    .player-controls { gap:16px; }
+    .p-btn { font-size:18px; }
+    .p-btn.main { font-size:22px; }
+    .pl-btn { font-size:11px; padding:3px 7px; }
+    .player { padding:10px 0 14px; }
+  }
+</style>
+</head>
+<body>
+  <header class="masthead" role="banner">
+    <div class="masthead-rule"></div>
+    <h1>The Signal</h1>
+    <div class="date">2026. 04. 03. Friday</div>
+    <div class="edition">AI Daily Briefing — 4 stories from 11 sources</div>
+    <a href="archive/" style="font-family:'DM Mono',monospace;font-size:11px;color:#6366f1;text-decoration:none;margin-top:8px;display:inline-block;">Past Briefings →</a>
+  </header>
+  <main class="container" role="main">
+        <article class="card" style="animation-delay:0.0s" tabindex="0" role="article" aria-label="OpenAI, TBPN 토크쇼 인수">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/kr_0.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/en_0.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/jp_0.mp3"></audio>
+          <div class="card-head">
+            <span class="num">01</span>
+            <span class="badge"><span class="lang kr">기업동향</span><span class="lang en" style="display:none">Industry</span><span class="lang jp" style="display:none">企業動向</span></span>
+            <span class="sources"><span class="lang kr">3개 매체 보도</span><span class="lang en" style="display:none">Covered by 3 sources</span><span class="lang jp" style="display:none">3社が報道</span></span>
+            <time class="card-time">04/03 02:40</time>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=openai.com&amp;sz=64" alt=""><span class="lang kr">OpenAI, TBPN 토크쇼 인수</span><span class="lang en" style="display:none">OpenAI acquires TBPN talk show</span><span class="lang jp" style="display:none">OpenAI、TBPNトークショーを買収</span></h2>
+          <div class="card-original">OpenAI just bought TBPN</div>
+          <p class="card-summary"><span class="lang kr">OpenAI가 AI 및 기술 리더들을 인터뷰하는 온라인 토크쇼 TBPN을 인수했습니다. 이 쇼는 샘 알트만 OpenAI CEO를 비롯해 메타, 마이크로소프트 등 주요 IT 기업 임원들을 출연시킵니다.</span><span class="lang en" style="display:none">OpenAI has acquired TBPN, an online talk show that interviews AI and tech leaders. The show features executives from major IT companies, including OpenAI CEO Sam Altman, Meta, and Microsoft.</span><span class="lang jp" style="display:none">OpenAIは、AIやテクノロジーリーダーをインタビューするオンライン番組TBPNを買収しました。この番組には、OpenAIのサム・アルトマンCEOを含むMeta、Microsoftなどの主要IT企業の幹部が出演しています。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">OpenAI가 미디어 플랫폼을 확보하여 AI 관련 논의와 기업 홍보에 직접적인 영향력을 확대하고 있습니다.</span><span class="lang en" style="display:none">OpenAI is expanding its direct influence on AI discussions and corporate promotion by acquiring a media platform.</span><span class="lang jp" style="display:none">OpenAIは、メディアプラットフォームを確保することで、AI関連の議論や企業広報への直接的な影響力を拡大しています。</span></span>
+          </div>
+          <a href="https://www.theverge.com/ai-artificial-intelligence/906022/openai-buys-tbpn" target="_blank" rel="noopener noreferrer" class="card-source" aria-label="원문 보기">원문 보기 ↗</a>
+        </article>
+        <article class="card" style="animation-delay:0.12s" tabindex="0" role="article" aria-label="Google, 가스 발전소로 데이터 센터 운영">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/kr_1.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/en_1.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/jp_1.mp3"></audio>
+          <div class="card-head">
+            <span class="num">02</span>
+            <span class="badge"><span class="lang kr">기업동향</span><span class="lang en" style="display:none">Industry</span><span class="lang jp" style="display:none">企業動向</span></span>
+            <span class="sources"><span class="lang kr">2개 매체 보도</span><span class="lang en" style="display:none">Covered by 2 sources</span><span class="lang jp" style="display:none">2社が報道</span></span>
+            <time class="card-time">04/03 03:27</time>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=google.com&amp;sz=64" alt=""><span class="lang kr">Google, 가스 발전소로 데이터 센터 운영</span><span class="lang en" style="display:none">Google data center powered by gas plant</span><span class="lang jp" style="display:none">Google、ガス発電所でデータセンター運営</span></h2>
+          <div class="card-original">A New Google-Funded Data Center Will Be Powered by a Massive Gas Plant</div>
+          <p class="card-summary"><span class="lang kr">Google의 새로운 데이터 센터 중 하나가 천연가스 발전소로 가동될 예정입니다. 이 발전소는 매년 수백만 톤의 배출물을 발생시켜 업계의 흔한 추세를 보여줍니다.</span><span class="lang en" style="display:none">One of Google&#x27;s new data centers will be powered by a natural gas plant. This plant will emit millions of tons of emissions annually, reflecting an increasingly common industry trend.</span><span class="lang jp" style="display:none">Googleの新しいデータセンターの1つが天然ガス発電所で稼働する予定です。この発電所は毎年数百万トンの排出物を発生させ、業界の一般的な傾向を示しています。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">AI 인프라 확장에 따른 에너지 소비와 환경적 영향에 대한 우려가 커지는 가운데, Google의 전략이 주목받고 있습니다.</span><span class="lang en" style="display:none">Google&#x27;s strategy is drawing attention as concerns grow over energy consumption and environmental impact due to AI infrastructure expansion.</span><span class="lang jp" style="display:none">AIインフラ拡張に伴うエネルギー消費と環境への影響への懸念が高まる中、Googleの戦略が注目されています。</span></span>
+          </div>
+          <a href="https://www.wired.com/story/a-new-google-funded-data-center-will-be-powered-by-a-massive-gas-plant/" target="_blank" rel="noopener noreferrer" class="card-source" aria-label="원문 보기">원문 보기 ↗</a>
+        </article>
+        <article class="card" style="animation-delay:0.24s" tabindex="0" role="article" aria-label="MS, MAI-Transcribe-1 2.5배 빠른 음성-텍스트 모델 출시">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/kr_2.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/en_2.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/jp_2.mp3"></audio>
+          <div class="card-head">
+            <span class="num">03</span>
+            <span class="badge"><span class="lang kr">LLM</span><span class="lang en" style="display:none">LLM</span><span class="lang jp" style="display:none">LLM</span></span>
+            <span class="sources"><span class="lang kr">2개 매체 보도</span><span class="lang en" style="display:none">Covered by 2 sources</span><span class="lang jp" style="display:none">2社が報道</span></span>
+            <time class="card-time">04/03 01:26</time>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=microsoft.com&amp;sz=64" alt=""><span class="lang kr">MS, MAI-Transcribe-1 2.5배 빠른 음성-텍스트 모델 출시</span><span class="lang en" style="display:none">MS launches MAI-Transcribe-1, 2.5x faster speech-to-text</span><span class="lang jp" style="display:none">MS、MAI-Transcribe-1発表、2.5倍速い音声-テキストモデル</span></h2>
+          <div class="card-original">Microsoft&#x27;s MAI-Transcribe-1 runs 2.5x faster than its predecessor at $0.36 per audio hour</div>
+          <p class="card-summary"><span class="lang kr">Microsoft가 25개 언어로 빠르고 정확하게 음성을 텍스트로 변환하는 MAI-Transcribe-1을 공개했습니다. 이 모델은 이전 버전보다 2.5배 빠르며 자사 제품에 이미 사용 중입니다.</span><span class="lang en" style="display:none">Microsoft has unveiled MAI-Transcribe-1, which quickly and accurately converts speech to text in 25 languages. This model is 2.5 times faster than its predecessor and is already used in Microsoft&#x27;s own products.</span><span class="lang jp" style="display:none">Microsoftは、25言語で音声をテキストに迅速かつ正確に変換するMAI-Transcribe-1を発表しました。このモデルは前モデルより2.5倍高速で、Microsoftの自社製品で既に利用されています。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">Microsoft는 AI 기반 음성-텍스트 기술의 성능과 효율성을 크게 향상시켜 사용자 경험을 개선하고 있습니다.</span><span class="lang en" style="display:none">Microsoft is significantly improving the performance and efficiency of AI-based speech-to-text technology, enhancing user experience.</span><span class="lang jp" style="display:none">Microsoftは、AIベースの音声-テキスト技術の性能と効率を大幅に向上させ、ユーザーエクスペリエンスを改善しています。</span></span>
+          </div>
+          <a href="https://the-decoder.com/microsofts-mai-transcribe-1-runs-2-5x-faster-than-its-predecessor-at-0-36-per-audio-hour/" target="_blank" rel="noopener noreferrer" class="card-source" aria-label="원문 보기">원문 보기 ↗</a>
+        </article>
+        <article class="card" style="animation-delay:0.36s" tabindex="0" role="article" aria-label="Arcee AI, Trinity Large Thinking 공개">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/kr_3.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/en_3.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/jp_3.mp3"></audio>
+          <div class="card-head">
+            <span class="num">04</span>
+            <span class="badge"><span class="lang kr">LLM</span><span class="lang en" style="display:none">LLM</span><span class="lang jp" style="display:none">LLM</span></span>
+            <span class="sources"><span class="lang kr">1개 매체 보도</span><span class="lang en" style="display:none">Covered by 1 sources</span><span class="lang jp" style="display:none">1社が報道</span></span>
+            <time class="card-time">04/03 08:56</time>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=arcee.ai&amp;sz=64" alt=""><span class="lang kr">Arcee AI, Trinity Large Thinking 공개</span><span class="lang en" style="display:none">Arcee AI releases Trinity Large Thinking</span><span class="lang jp" style="display:none">Arcee AI、Trinity Large Thinkingを公開</span></h2>
+          <div class="card-original">Arcee AI Releases Trinity Large Thinking: An Apache 2.0 Open Reasoning Model for Long-Horizon Agents and Tool Use</div>
+          <p class="card-summary"><span class="lang kr">Arcee AI가 복잡한 다단계 추론이 가능한 오픈소스 모델 &#x27;Trinity Large Thinking&#x27;을 출시했습니다. 이 모델은 장기 에이전트 및 도구 사용에 중점을 둡니다.</span><span class="lang en" style="display:none">Arcee AI has released &#x27;Trinity Large Thinking&#x27;, an open-source model capable of complex, multi-step reasoning. This model focuses on long-horizon agents and tool use.</span><span class="lang jp" style="display:none">Arcee AIは、複雑な多段階推論が可能なオープンソースモデル「Trinity Large Thinking」をリリースしました。このモデルは、長期エージェントとツール利用に重点を置いています。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">독점적인 추론 모델이 지배하는 시장에서 오픈소스 모델이 출시되어 AI 연구 및 개발의 민주화에 기여하고 있습니다.</span><span class="lang en" style="display:none">The release of an open-source model in a market dominated by proprietary reasoning models contributes to the democratization of AI research and development.</span><span class="lang jp" style="display:none">独占的な推論モデルが支配する市場において、オープンソースモデルがリリースされ、AI研究開発の民主化に貢献しています。</span></span>
+          </div>
+          <a href="https://www.marktechpost.com/2026/04/02/arcee-ai-releases-trinity-large-thinking-an-apache-2-0-open-reasoning-model-for-long-horizon-agents-and-tool-use/" target="_blank" rel="noopener noreferrer" class="card-source" aria-label="원문 보기">원문 보기 ↗</a>
+        </article></main>
+<audio id="tts-all-kr" preload="none" src="audio/kr_all.mp3"></audio>
+<audio id="tts-all-en" preload="none" src="audio/en_all.mp3"></audio>
+<audio id="tts-all-jp" preload="none" src="audio/jp_all.mp3"></audio>
+
+
+  <nav class="player" role="region" aria-label="오디오 플레이어">
+    <div class="player-progress"><div class="player-progress-bar" id="pbar"></div></div>
+    <div class="player-inner">
+      <div class="player-info">
+        <div class="player-title" id="ptitle" aria-live="polite">재생 대기 중</div>
+        <div class="player-sub" id="psub">뉴스를 재생하려면 ▶ 를 누르세요</div>
+      </div>
+      <div class="player-controls">
+        <button class="p-btn" onclick="prevTrack()" aria-label="이전 뉴스">⏮</button>
+        <button class="p-btn main" id="pbtn" onclick="togglePlay()" aria-label="재생">▶</button>
+        <button class="p-btn" onclick="nextTrack()" aria-label="다음 뉴스">⏭</button>
+      </div>
+      <div class="player-lang" role="group" aria-label="언어 선택">
+        <button class="pl-btn active" onclick="setLang('kr')" aria-label="한국어">KR</button>
+        <button class="pl-btn" onclick="setLang('en')" aria-label="English">EN</button>
+        <button class="pl-btn" onclick="setLang('jp')" aria-label="日本語">JP</button>
+      </div>
+    </div>
+  </nav>
+
+<canvas id="aurora" aria-hidden="true"></canvas>
+<script>
+(function(){
+  const c=document.getElementById('aurora'),x=c.getContext('2d');
+  let w,h;
+  function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; }
+  resize(); addEventListener('resize',resize);
+  const blobs=[
+    {x:.2,y:.25,r:300,dx:.0003,dy:.0002,color:[99,102,241]},
+    {x:.75,y:.55,r:250,dx:-.0004,dy:.0003,color:[167,139,250]},
+    {x:.5,y:.8,r:200,dx:.0002,dy:-.0003,color:[99,102,241]},
+  ];
+  let t=0;
+  function draw(){
+    x.clearRect(0,0,w,h);
+    t+=.005;
+    blobs.forEach(b=>{
+      const bx=(b.x+Math.sin(t*2+b.dx*1000)*.08)*w;
+      const by=(b.y+Math.cos(t*1.5+b.dy*1000)*.06)*h;
+      const r=b.r+Math.sin(t*3)*.15*b.r;
+      const g=x.createRadialGradient(bx,by,0,bx,by,r);
+      g.addColorStop(0,`rgba(${b.color.join(',')},0.12)`);
+      g.addColorStop(1,'transparent');
+      x.fillStyle=g;
+      x.fillRect(0,0,w,h);
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── 플레이어 ──
+let curLang='kr';
+let curIdx=0;
+let isPlaying=false;
+let curAudio=null;
+const cards=document.querySelectorAll('.card');
+const pbtn=document.getElementById('pbtn');
+const ptitle=document.getElementById('ptitle');
+const psub=document.getElementById('psub');
+const pbar=document.getElementById('pbar');
+
+function getTitle(i){
+  const card=cards[i];
+  if(!card) return '';
+  const el=card.querySelector('.card-title .lang.'+curLang);
+  return el?el.textContent:'';
+}
+
+function highlight(i){
+  cards.forEach(c=>c.classList.remove('now-playing'));
+  if(cards[i]) cards[i].classList.add('now-playing');
+  ptitle.textContent=getTitle(i)||'재생 대기 중';
+  psub.textContent=`${i+1} / ${cards.length}`;
+  pbar.style.width=`${((i+1)/cards.length)*100}%`;
+  if(cards[i]) cards[i].scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function playIdx(i){
+  if(curAudio){ curAudio.pause(); curAudio.currentTime=0; }
+  curIdx=i;
+  const card=cards[i];
+  if(!card){ stop(); return; }
+  const audio=card.querySelector('.tts-audio.tts-'+curLang);
+  if(!audio){ nextTrack(); return; }
+  curAudio=audio;
+  highlight(i);
+  isPlaying=true;
+  pbtn.textContent='⏸';
+  pbtn.setAttribute('aria-label','일시정지');
+  audio.onended=()=>nextTrack();
+  audio.play();
+}
+
+function togglePlay(){
+  if(isPlaying && curAudio){
+    curAudio.pause();
+    isPlaying=false;
+    pbtn.textContent='▶';
+    pbtn.setAttribute('aria-label','재생');
+  } else if(!isPlaying && curAudio && curAudio.currentTime>0){
+    curAudio.play();
+    isPlaying=true;
+    pbtn.textContent='⏸';
+    pbtn.setAttribute('aria-label','일시정지');
+  } else {
+    playIdx(curIdx);
+  }
+}
+
+function nextTrack(){
+  if(curIdx<cards.length-1) playIdx(curIdx+1);
+  else stop();
+}
+
+function prevTrack(){
+  if(curAudio && curAudio.currentTime>3){ curAudio.currentTime=0; return; }
+  if(curIdx>0) playIdx(curIdx-1);
+}
+
+function stop(){
+  if(curAudio){ curAudio.pause(); curAudio.currentTime=0; curAudio=null; }
+  isPlaying=false;
+  pbtn.textContent='▶';
+  pbtn.setAttribute('aria-label','재생');
+  cards.forEach(c=>c.classList.remove('now-playing'));
+  ptitle.textContent='재생 완료';
+  psub.textContent='다시 들으려면 ▶ 를 누르세요';
+  pbar.style.width='100%';
+  curIdx=0;
+}
+
+function setLang(lang){
+  const wasPlaying=isPlaying;
+  if(curAudio){ curAudio.pause(); curAudio.currentTime=0; }
+  curLang=lang;
+  document.querySelectorAll('.lang').forEach(el=>{
+    el.style.display=el.classList.contains(lang)?'inline':'none';
+  });
+  document.querySelectorAll('.pl-btn').forEach(btn=>{
+    btn.classList.toggle('active',btn.textContent.toLowerCase()===lang);
+  });
+  highlight(curIdx);
+  if(wasPlaying) playIdx(curIdx);
+}
+
+// 카드 클릭 → 재생, 원문 링크 클릭은 통과
+cards.forEach((card,i)=>{
+  card.addEventListener('click',e=>{
+    if(e.target.closest('a')) return;
+    playIdx(i);
+  });
+});
+
+// 키보드 네비게이션: Space/Enter → 재생, 좌우 화살표 → 이전/다음
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if(e.code==='Space'){ e.preventDefault(); togglePlay(); }
+  else if(e.code==='ArrowRight'){ nextTrack(); }
+  else if(e.code==='ArrowLeft'){ prevTrack(); }
+});
+</script>
+</body>
+</html>

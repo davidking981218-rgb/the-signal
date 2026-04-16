@@ -7,7 +7,7 @@ import os
 import subprocess
 import tempfile
 
-from signal_core import fetch_rss, cluster_articles, curate_with_gemini, build_html, generate_tts
+from signal_core import fetch_rss, cluster_articles, curate_with_gemini, build_html, generate_tts, tts_to_data_uris
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
@@ -28,7 +28,8 @@ def main():
 
     clustered = cluster_articles(raw)
     articles = curate_with_gemini(clustered, GEMINI_API_KEY)
-    tts_data = generate_tts(articles)
+    tts_raw = generate_tts(articles)
+    tts_data = tts_to_data_uris(tts_raw)
     html = build_html(articles, feed_status=feed_status, tts_data=tts_data)
 
     print("[5/5] 앱 창 열기...")

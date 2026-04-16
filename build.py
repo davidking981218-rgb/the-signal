@@ -5,9 +5,10 @@ RSS 수집 → 클러스터링 → Gemini 요약 → HTML 배포 + 아카이브 
 
 import os
 import shutil
+from html import escape
 from signal_core import (
     fetch_rss, cluster_articles, curate_with_gemini,
-    build_html, build_error_html, notify_discord, generate_tts, now_kst,
+    build_html, build_error_html, notify_discord, generate_tts, tts_to_files, now_kst,
 )
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
@@ -25,7 +26,9 @@ def build_archive_index(archive_dir: str) -> str:
 
     items = ""
     for date_str, filename in files:
-        items += f'<a href="{filename}" style="display:block;padding:12px 0;border-bottom:1px solid #1e1e30;color:#c4b5fd;text-decoration:none;font-size:15px;">{date_str}</a>\n'
+        safe_filename = escape(filename, quote=True)
+        safe_date = escape(date_str)
+        items += f'<a href="{safe_filename}" style="display:block;padding:12px 0;border-bottom:1px solid #1e1e30;color:#c4b5fd;text-decoration:none;font-size:15px;">{safe_date}</a>\n'
 
     if not items:
         items = '<p style="color:#666;">아직 아카이브가 없습니다.</p>'
@@ -68,7 +71,8 @@ def main():
         if not articles:
             raise RuntimeError("Gemini 큐레이션 결과가 비어있습니다.")
 
-        tts_data = generate_tts(articles)
+        tts_raw = generate_tts(articles)
+        tts_data = tts_to_files(tts_raw, "public/audio")
         html = build_html(articles, archive_link="archive/", feed_status=feed_status, tts_data=tts_data)
 
     except Exception as e:

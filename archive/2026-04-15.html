@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THE SIGNAL — AI Daily Briefing</title>
 <meta name="description" content="AI 뉴스 데일리 브리핑 — 22개 글로벌 매체에서 수집한 오늘의 AI 뉴스">
-<meta property="og:title" content="THE SIGNAL — 2026-04-14">
-<meta property="og:description" content="MS, 기업용 자율 AI 에이전트 개발. 마이크로소프트(MS)는 코파일럿을 대대적으로 개편하여 자율형 AI 에이전트 기능을 강화하고 있습니다. 기업 시장 경쟁력 확보를 위해 MS 365 환경에서 24시간 작동하는 상시 AI를 목표로 전담 조직을 신설했습니다">
+<meta property="og:title" content="THE SIGNAL — 2026-04-15">
+<meta property="og:description" content="크롬, AI 프롬프트 &#x27;스킬&#x27;로 저장. 구글이 크롬 데스크톱 브라우저에 새로운 워크플로우 기능을 출시했다. 이제 자주 사용하는 Gemini 명령어나 AI 프롬프트를 &#x27;스킬&#x27;로 저장하여 여러 웹페이지에서 손쉽게 재사용할 수 있다.">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="ko_KR">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -43,6 +43,36 @@
   .card:focus { outline:2px solid #6366f1; outline-offset:2px; }
   .card.now-playing { border-color:#6366f1; box-shadow:0 0 20px #6366f120; }
   .card-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+
+  /* ── Tier 0 공식 매체 브랜드 컬러 ── */
+  /* 상단 액센트 바(4px) + 은은한 배경 방사 글로우, 카드 기본 스타일 위에 덮어씀 */
+  .card.official { position:relative; overflow:hidden; }
+  .card.official::before {
+    content:""; position:absolute; top:0; left:0; right:0; height:4px;
+    background:var(--brand-bar, #6366f1); z-index:2;
+  }
+  .card.official::after {
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:var(--brand-glow, radial-gradient(ellipse at top right, #6366f118, transparent 70%));
+    z-index:0;
+  }
+  .card.official > * { position:relative; z-index:1; }
+  /* OpenAI — 민트 그린 #10a37f */
+  .card.brand-openai { --brand-bar:#10a37f; --brand-glow:radial-gradient(ellipse at top right,#10a37f22,transparent 70%); border-color:#10a37f40; }
+  .card.brand-openai:hover { border-color:#10a37f80; }
+  /* Anthropic — Claude 주황 #cc785c */
+  .card.brand-anthropic { --brand-bar:#cc785c; --brand-glow:radial-gradient(ellipse at top right,#cc785c22,transparent 70%); border-color:#cc785c40; }
+  .card.brand-anthropic:hover { border-color:#cc785c80; }
+  /* Google/DeepMind — Gemini 4색 그라데이션 */
+  .card.brand-google { --brand-bar:linear-gradient(90deg,#4285f4 0%,#ea4335 33%,#fbbc04 66%,#34a853 100%); --brand-glow:radial-gradient(ellipse at top right,#4285f420,transparent 70%); border-color:#4285f440; }
+  .card.brand-google:hover { border-color:#4285f480; }
+  .card.brand-google::before { background:linear-gradient(90deg,#4285f4 0%,#ea4335 33%,#fbbc04 66%,#34a853 100%); }
+  /* NVIDIA — 시그니처 그린 #76b900 */
+  .card.brand-nvidia { --brand-bar:#76b900; --brand-glow:radial-gradient(ellipse at top right,#76b90022,transparent 70%); border-color:#76b90040; }
+  .card.brand-nvidia:hover { border-color:#76b90080; }
+  /* Microsoft — Azure 블루 #0078d4 */
+  .card.brand-microsoft { --brand-bar:#0078d4; --brand-glow:radial-gradient(ellipse at top right,#0078d422,transparent 70%); border-color:#0078d440; }
+  .card.brand-microsoft:hover { border-color:#0078d480; }
 
   /* ── 1번 뉴스 강조 ── */
   .card.featured { padding:28px; border-color:#6366f130; background:linear-gradient(160deg,#12121c 0%,#14142a 100%); }
@@ -121,7 +151,7 @@
   <header class="masthead" role="banner">
     <div class="masthead-rule"></div>
     <h1>The Signal</h1>
-    <div class="date">2026. 04. 14. Tuesday</div>
+    <div class="date">2026. 04. 15. Wednesday</div>
     <div class="edition">AI Daily Briefing — 5 stories from 22 sources</div>
     <div class="subtitle">
       <span class="lang kr">22개 글로벌 AI 매체의 중복 보도를 분석해 오늘의 핵심 뉴스만 선별합니다</span>
@@ -136,99 +166,99 @@
     <a href="./" class="archive-link">Past Briefings →</a>
   </header>
   <main class="container" role="main">
-        <article class="card featured" style="animation-delay:0.0s" tabindex="0" role="article" aria-label="MS, 기업용 자율 AI 에이전트 개발">
+        <article class="card featured" style="animation-delay:0.0s" tabindex="0" role="article" aria-label="크롬, AI 프롬프트 &#x27;스킬&#x27;로 저장">
           <audio class="tts-audio tts-kr" preload="none" src="audio/kr_0.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/en_0.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/jp_0.mp3"></audio>
           <div class="card-head">
             <span class="num">01</span>
-            <span class="badge"><span class="lang kr">기업동향</span><span class="lang en" style="display:none">Industry</span><span class="lang jp" style="display:none">企業動向</span></span>
-            <span class="sources"><span class="lang kr">4개 매체 보도</span><span class="lang en" style="display:none">Covered by 4 sources</span><span class="lang jp" style="display:none">4社が報道</span></span>
+            <span class="badge"><span class="lang kr">LLM</span><span class="lang en" style="display:none">LLM</span><span class="lang jp" style="display:none">LLM</span></span>
+            <span class="sources"><span class="lang kr">5개 매체 보도</span><span class="lang en" style="display:none">Covered by 5 sources</span><span class="lang jp" style="display:none">5社が報道</span></span>
           </div>
-          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=microsoft.com&amp;sz=64" alt=""><span class="lang kr">MS, 기업용 자율 AI 에이전트 개발</span><span class="lang en" style="display:none">MS develops enterprise autonomous AI agents</span><span class="lang jp" style="display:none">MS、企業向け自律型AIエージェントを開発</span></h2>
-          <p class="card-summary"><span class="lang kr">마이크로소프트(MS)는 코파일럿을 대대적으로 개편하여 자율형 AI 에이전트 기능을 강화하고 있습니다. 기업 시장 경쟁력 확보를 위해 MS 365 환경에서 24시간 작동하는 상시 AI를 목표로 전담 조직을 신설했습니다.</span><span class="lang en" style="display:none">Microsoft (MS) is extensively overhauling Copilot to enhance its autonomous AI agent capabilities. To gain competitiveness in the enterprise market, a dedicated team has been established, aiming for an &quot;always-on&quot; AI that operates 24/7 within the MS 365 environment.</span><span class="lang jp" style="display:none">マイクロソフト（MS）は、コパイロットを大幅に刷新し、自律型AIエージェント機能を強化しています。企業市場での競争力を確保するため、MS 365環境で24時間稼働する常時AIを目指し、専門組織を新設しました。</span></p>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=google.com&amp;sz=64" alt=""><span class="lang kr">크롬, AI 프롬프트 &#x27;스킬&#x27;로 저장</span><span class="lang en" style="display:none">Chrome saves AI prompts as &#x27;Skills&#x27;</span><span class="lang jp" style="display:none">Chrome、AIプロンプトを「スキル」に保存</span></h2>
+          <p class="card-summary"><span class="lang kr">구글이 크롬 데스크톱 브라우저에 새로운 워크플로우 기능을 출시했다. 이제 자주 사용하는 Gemini 명령어나 AI 프롬프트를 &#x27;스킬&#x27;로 저장하여 여러 웹페이지에서 손쉽게 재사용할 수 있다.</span><span class="lang en" style="display:none">Google is launching a new Chrome workflow feature for desktop browsers. Users can now save favorite Gemini commands or AI prompts as &quot;Skills&quot; to instantly reuse them across multiple webpages.</span><span class="lang jp" style="display:none">GoogleはChromeデスクトップブラウザに新しいワークフロー機能をリリースします。これにより、お気に入りのGeminiコマンドやAIプロンプトを「スキル」として保存し、複数のウェブページで簡単に再利用できます。</span></p>
           <div class="card-why">
             <span class="why-label">WHY IT MATTERS</span>
-            <span class="why-text"><span class="lang kr">MS의 자율형 AI 에이전트 개발은 기업용 AI 시장의 판도를 바꿀 핵심 동향입니다.</span><span class="lang en" style="display:none">MS&#x27;s development of autonomous AI agents is a key trend that will change the landscape of the enterprise AI market.</span><span class="lang jp" style="display:none">MSの自律型AIエージェント開発は、企業向けAI市場の状況を一変させる重要な動向です。</span></span>
+            <span class="why-text"><span class="lang kr">사용자들이 크롬에서 AI 명령어를 더욱 효율적으로 활용하고 개인화된 생산성을 높일 수 있게 합니다.</span><span class="lang en" style="display:none">It allows users to leverage AI commands more efficiently in Chrome and enhance personalized productivity.</span><span class="lang jp" style="display:none">ユーザーはChromeでAIコマンドをより効率的に活用し、パーソナライズされた生産性を向上させることができます。</span></span>
           </div>
           <div class="card-actions">
             <button class="card-play" onclick="playIdx(0)" aria-label="재생">▶</button>
-            <a href="https://www.aitimes.com/news/articleView.html?idxno=209220" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
-            <time class="card-time">04/15 03:38</time>
+            <a href="https://www.theverge.com/tech/911658/google-chrome-gemini-ai-skills-availability-launch" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">04/15 02:00</time>
           </div>
         </article>
-        <article class="card" style="animation-delay:0.12s" tabindex="0" role="article" aria-label="스탠포드 AI 지수 주요 트렌드">
+        <article class="card" style="animation-delay:0.12s" tabindex="0" role="article" aria-label="클로드 미토스 사이버 보안 능력 평가">
           <audio class="tts-audio tts-kr" preload="none" src="audio/kr_1.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/en_1.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/jp_1.mp3"></audio>
           <div class="card-head">
             <span class="num">02</span>
             <span class="badge"><span class="lang kr">연구</span><span class="lang en" style="display:none">Research</span><span class="lang jp" style="display:none">研究</span></span>
-            <span class="sources"><span class="lang kr">4개 매체 보도</span><span class="lang en" style="display:none">Covered by 4 sources</span><span class="lang jp" style="display:none">4社が報道</span></span>
+            <span class="sources"><span class="lang kr">3개 매체 보도</span><span class="lang en" style="display:none">Covered by 3 sources</span><span class="lang jp" style="display:none">3社が報道</span></span>
           </div>
-          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=stanford.edu&amp;sz=64" alt=""><span class="lang kr">스탠포드 AI 지수 주요 트렌드</span><span class="lang en" style="display:none">Stanford AI Index key trends</span><span class="lang jp" style="display:none">スタンフォードAIインデックス主要トレンド</span></h2>
-          <p class="card-summary"><span class="lang kr">스탠포드 AI 지수(AI Index)는 AI 산업의 주요 결과와 트렌드를 연간으로 종합하여 발표합니다. 이는 빠르게 변화하는 AI 분야에서 현황을 파악하고 방향성을 제시하는 중요한 자료입니다.</span><span class="lang en" style="display:none">Stanford&#x27;s AI Index annually compiles and publishes key results and trends in the AI industry. It serves as an important resource for understanding the current state and direction of the rapidly evolving AI field.</span><span class="lang jp" style="display:none">スタンフォードAIインデックスは、AI業界の主要な成果とトレンドを毎年まとめて発表しています。これは、急速に変化するAI分野の現状を把握し、方向性を示す重要な資料です。</span></p>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=anthropic.com&amp;sz=64" alt=""><span class="lang kr">클로드 미토스 사이버 보안 능력 평가</span><span class="lang en" style="display:none">Claude Mythos Cyber Capability Eval</span><span class="lang jp" style="display:none">Claude Mythosのサイバー能力評価</span></h2>
+          <p class="card-summary"><span class="lang kr">영국 AI 안전 연구소가 앤트로픽의 AI 모델 &#x27;클로드 미토스 프리뷰&#x27;의 사이버 보안 능력을 독립적으로 평가했다. 이 평가는 클로드 미토스가 보안 취약점을 식별하는 데 매우 효과적이라는 앤트로픽의 주장을 뒷받침한다.</span><span class="lang en" style="display:none">The UK&#x27;s AI Safety Institute independently evaluated Anthropic&#x27;s AI model, &#x27;Claude Mythos Preview,&#x27; for its cybersecurity capabilities. This analysis supports Anthropic&#x27;s claims that Claude Mythos is exceptionally effective at identifying security vulnerabilities.</span><span class="lang jp" style="display:none">英国AI安全研究所は、AnthropicのAIモデル「Claude Mythos Preview」のサイバーセキュリティ能力を独立して評価しました。この評価は、Claude Mythosがセキュリティ脆弱性の特定に非常に効果的であるというAnthropicの主張を裏付けています。</span></p>
           <div class="card-why">
             <span class="why-label">WHY IT MATTERS</span>
-            <span class="why-text"><span class="lang kr">스탠포드 AI 지수는 AI 기술 발전과 산업 동향을 종합적으로 분석하여 미래 방향을 제시합니다.</span><span class="lang en" style="display:none">The Stanford AI Index comprehensively analyzes AI technology development and industry trends, guiding future directions.</span><span class="lang jp" style="display:none">スタンフォードAIインデックスは、AI技術の発展と産業動向を包括的に分析し、将来の方向性を示します。</span></span>
+            <span class="why-text"><span class="lang kr">AI 모델의 실제 사이버 보안 방어 역량을 검증하여 AI 안전성과 활용 가능성에 대한 신뢰를 높입니다.</span><span class="lang en" style="display:none">It validates the real-world cybersecurity defense capabilities of AI models, increasing confidence in AI safety and applicability.</span><span class="lang jp" style="display:none">AIモデルの実世界のサイバーセキュリティ防御能力を検証し、AIの安全性と適用可能性への信頼を高めます。</span></span>
           </div>
           <div class="card-actions">
             <button class="card-play" onclick="playIdx(1)" aria-label="재생">▶</button>
-            <a href="https://www.technologyreview.com/2026/04/13/1135720/why-opinion-on-ai-is-so-divided/" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
-            <time class="card-time">04/14 00:48</time>
+            <a href="https://simonwillison.net/2026/Apr/14/cybersecurity-proof-of-work/#atom-everything" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">04/15 04:41</time>
           </div>
         </article>
-        <article class="card" style="animation-delay:0.24s" tabindex="0" role="article" aria-label="오픈AI, B2B 사업 및 아마존 파트너십 강화">
+        <article class="card" style="animation-delay:0.24s" tabindex="0" role="article" aria-label="OpenAI, 사이버 방어 GPT-5.4 출시">
           <audio class="tts-audio tts-kr" preload="none" src="audio/kr_2.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/en_2.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/jp_2.mp3"></audio>
           <div class="card-head">
             <span class="num">03</span>
-            <span class="badge"><span class="lang kr">기업동향</span><span class="lang en" style="display:none">Industry</span><span class="lang jp" style="display:none">企業動向</span></span>
-            <span class="sources"><span class="lang kr">3개 매체 보도</span><span class="lang en" style="display:none">Covered by 3 sources</span><span class="lang jp" style="display:none">3社が報道</span></span>
+            <span class="badge"><span class="lang kr">LLM</span><span class="lang en" style="display:none">LLM</span><span class="lang jp" style="display:none">LLM</span></span>
+            <span class="sources"><span class="lang kr">2개 매체 보도</span><span class="lang en" style="display:none">Covered by 2 sources</span><span class="lang jp" style="display:none">2社が報道</span></span>
           </div>
-          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=openai.com&amp;sz=64" alt=""><span class="lang kr">오픈AI, B2B 사업 및 아마존 파트너십 강화</span><span class="lang en" style="display:none">OpenAI strengthens B2B, Amazon partnership</span><span class="lang jp" style="display:none">OpenAI、B2B事業とアマゾン提携を強化</span></h2>
-          <p class="card-summary"><span class="lang kr">오픈AI는 직원들에게 아마존과의 새로운 파트너십을 통해 기업용 AI 시장에서 빠르게 성장 중이라고 밝혔습니다. 또한, 앤트로픽의 매출 부풀리기를 지적하며 B2B 고객 공략 전략을 본격화할 의지를 표명했습니다.</span><span class="lang en" style="display:none">OpenAI informed employees of its rapid growth in the enterprise AI market through a new partnership with Amazon. It also criticized Anthropic&#x27;s revenue inflation, signaling a full-scale push into its B2B customer strategy.</span><span class="lang jp" style="display:none">OpenAIは従業員に対し、アマゾンとの新たな提携を通じて企業向けAI市場で急速に成長していると述べました。また、Anthropicの売上水増しを指摘し、B2B顧客攻略戦略を本格化する意向を表明しました。</span></p>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=openai.com&amp;sz=64" alt=""><span class="lang kr">OpenAI, 사이버 방어 GPT-5.4 출시</span><span class="lang en" style="display:none">OpenAI launches GPT-5.4-Cyber</span><span class="lang jp" style="display:none">OpenAI、GPT-5.4-Cyberリリース</span></h2>
+          <p class="card-summary"><span class="lang kr">OpenAI는 클로드 미토스에 대응하여 새로운 모델인 &#x27;GPT-5.4-Cyber&#x27;를 선보일 것으로 보인다. 이 모델은 점점 더 강력해지는 AI 모델에 대비하여 방어적 사이버 보안 용도로 특별히 미세 조정되었다.</span><span class="lang en" style="display:none">OpenAI appears to be introducing a new model called &#x27;GPT-5.4-Cyber&#x27; as a response to Claude Mythos. This model is specifically fine-tuned for defensive cybersecurity uses, in preparation for increasingly capable AI models.</span><span class="lang jp" style="display:none">OpenAIは、Claude Mythosに対抗する新しいモデル「GPT-5.4-Cyber」を発表するようです。このモデルは、ますます高性能になるAIモデルに備え、防御的なサイバーセキュリティ用途向けに特別に微調整されました。</span></p>
           <div class="card-why">
             <span class="why-label">WHY IT MATTERS</span>
-            <span class="why-text"><span class="lang kr">오픈AI의 B2B 시장 공략 강화는 기업용 AI 솔루션 경쟁 심화를 예고합니다.</span><span class="lang en" style="display:none">OpenAI&#x27;s intensified focus on the B2B market signals increased competition in enterprise AI solutions.</span><span class="lang jp" style="display:none">OpenAIのB2B市場攻略強化は、企業向けAIソリューションの競争激化を示唆しています。</span></span>
+            <span class="why-text"><span class="lang kr">OpenAI가 AI를 활용한 사이버 보안 방어 시장에 진출하며 새로운 AI 모델 경쟁 구도를 형성합니다.</span><span class="lang en" style="display:none">OpenAI enters the AI-powered cybersecurity defense market, shaping a new competitive landscape for AI models.</span><span class="lang jp" style="display:none">OpenAIはAIを活用したサイバーセキュリティ防御市場に参入し、AIモデルの新たな競争構図を形成します。</span></span>
           </div>
           <div class="card-actions">
             <button class="card-play" onclick="playIdx(2)" aria-label="재생">▶</button>
-            <a href="https://www.aitimes.com/news/articleView.html?idxno=209210" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
-            <time class="card-time">04/15 02:42</time>
+            <a href="https://simonwillison.net/2026/Apr/14/trusted-access-openai/#atom-everything" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">04/15 06:23</time>
           </div>
         </article>
-        <article class="card" style="animation-delay:0.36s" tabindex="0" role="article" aria-label="소프트뱅크, 피지컬 AI 회사 설립">
+        <article class="card" style="animation-delay:0.36s" tabindex="0" role="article" aria-label="구글 제미니 개인 정보 기능 인도 출시">
           <audio class="tts-audio tts-kr" preload="none" src="audio/kr_3.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/en_3.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/jp_3.mp3"></audio>
           <div class="card-head">
             <span class="num">04</span>
-            <span class="badge"><span class="lang kr">로보틱스</span><span class="lang en" style="display:none">Robotics</span><span class="lang jp" style="display:none">ロボティクス</span></span>
+            <span class="badge"><span class="lang kr">LLM</span><span class="lang en" style="display:none">LLM</span><span class="lang jp" style="display:none">LLM</span></span>
             <span class="sources"><span class="lang kr">2개 매체 보도</span><span class="lang en" style="display:none">Covered by 2 sources</span><span class="lang jp" style="display:none">2社が報道</span></span>
           </div>
-          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=softbank.jp&amp;sz=64" alt=""><span class="lang kr">소프트뱅크, 피지컬 AI 회사 설립</span><span class="lang en" style="display:none">SoftBank establishes Physical AI company</span><span class="lang jp" style="display:none">ソフトバンク、フィジカルAI会社を設立</span></h2>
-          <p class="card-summary"><span class="lang kr">일본 소프트뱅크는 혼다, NEC 등 주요 기업들과 함께 로봇 및 기계를 자율적으로 제어하는 차세대 &#x27;피지컬 AI&#x27; 개발 회사를 설립했습니다. 이 회사는 일본 기업들을 위한 국산 AI 모델 개발과 &#x27;소버린 AI&#x27; 목표를 추진합니다.</span><span class="lang en" style="display:none">SoftBank, in collaboration with major Japanese companies like Honda and NEC, has established a new company to develop next-generation &#x27;Physical AI&#x27; for autonomous control of robots and machines. This initiative aims to create domestic AI models for Japanese enterprises and pursue &#x27;Sovereign AI&#x27; goals.</span><span class="lang jp" style="display:none">ソフトバンクは、ホンダやNECなどの主要な日本企業と協力し、ロボットや機械を自律的に制御する次世代「フィジカルAI」開発会社を設立しました。この会社は、日本企業向けの国産AIモデル開発と「ソブリンAI」の目標を推進します。</span></p>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=google.com&amp;sz=64" alt=""><span class="lang kr">구글 제미니 개인 정보 기능 인도 출시</span><span class="lang en" style="display:none">Google Gemini Personal in India</span><span class="lang jp" style="display:none">Google Gemini、インドで展開</span></h2>
+          <p class="card-summary"><span class="lang kr">구글이 제미니 개인 정보(Personal Intelligence) 기능을 인도에 선보인다. 이 기능을 통해 사용자들은 Gmail 및 Google 포토와 같은 구글 계정을 연결하여 개인화된 답변을 얻을 수 있다.</span><span class="lang en" style="display:none">Google is bringing its Gemini Personal Intelligence feature to India. This feature allows users to connect Google accounts like Gmail and Photos to receive personalized answers.</span><span class="lang jp" style="display:none">Googleは、Geminiパーソナルインテリジェンス機能をインドで提供開始します。この機能により、ユーザーはGmailやGoogleフォトなどのGoogleアカウントを接続して、パーソナライズされた回答を得ることができます。</span></p>
           <div class="card-why">
             <span class="why-label">WHY IT MATTERS</span>
-            <span class="why-text"><span class="lang kr">피지컬 AI 개발은 로봇과 자동차 분야의 자율 제어 기술 혁신을 이끌 것입니다.</span><span class="lang en" style="display:none">The development of Physical AI will drive innovation in autonomous control technology for robotics and automotive sectors.</span><span class="lang jp" style="display:none">フィジカルAIの開発は、ロボットおよび自動車分野における自律制御技術の革新を推進します。</span></span>
+            <span class="why-text"><span class="lang kr">AI가 사용자의 개인 데이터를 활용하여 더욱 맞춤화된 정보와 서비스를 제공하는 방향으로 발전함을 보여줍니다.</span><span class="lang en" style="display:none">It demonstrates AI&#x27;s evolution towards providing more personalized information and services by utilizing user data.</span><span class="lang jp" style="display:none">AIがユーザーの個人データを活用し、よりパーソナライズされた情報とサービスを提供する方向へ進化していることを示します。</span></span>
           </div>
           <div class="card-actions">
             <button class="card-play" onclick="playIdx(3)" aria-label="재생">▶</button>
-            <a href="https://www.aitimes.com/news/articleView.html?idxno=209224" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
-            <time class="card-time">04/15 01:21</time>
+            <a href="https://techcrunch.com/2026/04/14/google-brings-its-gemini-personal-intelligence-feature-to-india/" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">04/14 23:48</time>
           </div>
         </article>
-        <article class="card" style="animation-delay:0.48s" tabindex="0" role="article" aria-label="오픈AI, 개인 금융 AI 스타트업 인수">
+        <article class="card" style="animation-delay:0.48s" tabindex="0" role="article" aria-label="소프트뱅크, 피지컬 AI 회사 설립">
           <audio class="tts-audio tts-kr" preload="none" src="audio/kr_4.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/en_4.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/jp_4.mp3"></audio>
           <div class="card-head">
             <span class="num">05</span>
-            <span class="badge"><span class="lang kr">기업동향</span><span class="lang en" style="display:none">Industry</span><span class="lang jp" style="display:none">企業動向</span></span>
+            <span class="badge"><span class="lang kr">로보틱스</span><span class="lang en" style="display:none">Robotics</span><span class="lang jp" style="display:none">ロボティクス</span></span>
             <span class="sources"><span class="lang kr">2개 매체 보도</span><span class="lang en" style="display:none">Covered by 2 sources</span><span class="lang jp" style="display:none">2社が報道</span></span>
           </div>
-          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=openai.com&amp;sz=64" alt=""><span class="lang kr">오픈AI, 개인 금융 AI 스타트업 인수</span><span class="lang en" style="display:none">OpenAI acquires personal finance AI startup</span><span class="lang jp" style="display:none">OpenAI、個人金融AIスタートアップを買収</span></h2>
-          <p class="card-summary"><span class="lang kr">오픈AI가 AI 기반 개인 금융 스타트업인 &#x27;Hiro&#x27;를 인수했습니다. 이번 인수는 챗GPT에 금융 계획 기능을 구축하려는 오픈AI의 의지를 보여줍니다.</span><span class="lang en" style="display:none">OpenAI has acquired Hiro, an AI personal finance startup. This acquisition indicates OpenAI&#x27;s intent to integrate financial planning capabilities into ChatGPT.</span><span class="lang jp" style="display:none">OpenAIは、AI個人金融スタートアップである「Hiro」を買収しました。この買収は、ChatGPTに金融計画機能を構築するというOpenAIの意図を示しています。</span></p>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=softbank.jp&amp;sz=64" alt=""><span class="lang kr">소프트뱅크, 피지컬 AI 회사 설립</span><span class="lang en" style="display:none">Softbank establishes Physical AI firm</span><span class="lang jp" style="display:none">ソフトバンク、フィジカルAI設立</span></h2>
+          <p class="card-summary"><span class="lang kr">소프트뱅크가 혼다, NEC 등 일본 주요 기업들과 협력하여 차세대 &#x27;피지컬 AI&#x27; 개발 회사를 설립했다. 이 회사는 로봇과 자동차 분야에 적용될 국산 AI 모델을 개발하며, 주변 환경을 스스로 인식하고 기계를 제어하는 기술 확보에 집중한다.</span><span class="lang en" style="display:none">Softbank, in collaboration with major Japanese companies like Honda and NEC, has established a new company to develop next-generation &#x27;Physical AI&#x27;. This new entity aims to create domestic AI models for robotics and automotive sectors, focusing on advanced technology for autonomous environmental perception and machine control.</span><span class="lang jp" style="display:none">ソフトバンクは、ホンダやNECなどの主要日本企業と協力し、次世代「フィジカルAI」開発のための新会社を設立しました。この会社は、ロボットや自動車分野に適用される国産AIモデルの開発を目指し、周囲の環境を自律的に認識し機械を制御する高度な技術の確保に注力します。</span></p>
           <div class="card-why">
             <span class="why-label">WHY IT MATTERS</span>
-            <span class="why-text"><span class="lang kr">챗GPT에 금융 계획 기능이 통합되면 AI 개인 비서의 활용 범위가 확대될 것입니다.</span><span class="lang en" style="display:none">Integrating financial planning into ChatGPT will expand the utility of AI personal assistants.</span><span class="lang jp" style="display:none">ChatGPTに金融計画機能が統合されることで、AIパーソナルアシスタントの活用範囲が拡大するでしょう。</span></span>
+            <span class="why-text"><span class="lang kr">일본의 주요 기업들이 피지컬 AI 및 로봇 분야의 주권 확보를 목표로 기술 개발에 협력하여 글로벌 AI 경쟁력을 강화합니다.</span><span class="lang en" style="display:none">Key Japanese companies are collaborating on Physical AI and robotics to secure technological sovereignty, strengthening global AI competitiveness.</span><span class="lang jp" style="display:none">日本の主要企業がフィジカルAIおよびロボティクス分野の主権確保を目指して技術開発に協力し、グローバルなAI競争力を強化します。</span></span>
           </div>
           <div class="card-actions">
             <button class="card-play" onclick="playIdx(4)" aria-label="재생">▶</button>
-            <a href="https://techcrunch.com/2026/04/13/openai-has-bought-ai-personal-finance-startup-hiro/" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
-            <time class="card-time">04/14 09:23</time>
+            <a href="https://www.aitimes.com/news/articleView.html?idxno=209224" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">04/15 01:21</time>
           </div>
         </article></main>
 <audio id="tts-all-kr" preload="none" src="audio/kr_all.mp3"></audio>

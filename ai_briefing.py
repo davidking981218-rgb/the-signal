@@ -26,8 +26,8 @@ def main():
         print("   ✗ RSS 수집 실패")
         return
 
-    clustered = cluster_articles(raw, GEMINI_API_KEY)
-    clustered = filter_ai_relevant(clustered)
+    filtered_raw = filter_ai_relevant(raw)
+    clustered = cluster_articles(filtered_raw, GEMINI_API_KEY)
     articles = curate_with_gemini(clustered, GEMINI_API_KEY)
     tts_raw = generate_tts(articles)
     tts_data = tts_to_data_uris(tts_raw)

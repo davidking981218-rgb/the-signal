@@ -184,6 +184,15 @@ def _earliest_entity_domain(text: str) -> str:
 
 # 매체별 신뢰도 가중치 (AI 기술 기사 품질 기준, 매체 수 동일 시 정렬에 사용)
 TIER_0_WEIGHT = 4  # 공식 1차 소스: 단 1곳만 보도해도 최상위로 올림
+# Tier 0 매체 → 브랜드 키 (카드 컬러링용). Tier 0가 아닌 매체는 등록하지 않는다.
+SOURCE_BRAND = {
+    "OpenAI News": "openai",
+    "The latest research from Google": "google",
+    "Google DeepMind News": "google",  # Gemini/DeepMind 모두 구글 4색으로 통일
+    "Anthropic News": "anthropic",
+    "NVIDIA Blog": "nvidia",
+    "Microsoft Research": "microsoft",
+}
 SOURCE_WEIGHT = {
     # Tier 0 — 공식 1차 소스 (단독 보도라도 무조건 최상위)
     "OpenAI News": 4,
@@ -393,6 +402,15 @@ def cluster_articles(entries: list[dict], api_key: str) -> list[dict]:
             arts,
             key=lambda a: (SOURCE_WEIGHT.get(a["source"], _DEFAULT_WEIGHT), len(a["summary"])),
         )
+        # Tier 0 매체가 클러스터에 있으면 brand_key 설정 (가중치 순서로 첫 매치)
+        brand_key = ""
+        tier0_sources = sorted(
+            (s for s in sources if s in SOURCE_BRAND),
+            key=lambda s: SOURCE_WEIGHT.get(s, 0),
+            reverse=True,
+        )
+        if tier0_sources:
+            brand_key = SOURCE_BRAND[tier0_sources[0]]
         grouped.append({
             "title": representative["title"],
             "summary": representative["summary"],
@@ -400,6 +418,7 @@ def cluster_articles(entries: list[dict], api_key: str) -> list[dict]:
             "source_count": len(sources),
             "sources": sources,
             "date": representative.get("date"),
+            "brand_key": brand_key,
         })
 
     # 정렬: Tier 0 포함 여부 → 매체 수 → 매체 신뢰도
@@ -466,14 +485,15 @@ _BLACKLIST_SUBSTRINGS = [
 ]
 
 
-def filter_ai_relevant(clustered: list[dict]) -> list[dict]:
-    """AI 기술과 직접 관련 없는 토픽을 제거한다.
+def filter_ai_relevant(items: list[dict]) -> list[dict]:
+    """AI 기술과 직접 관련 없는 항목을 제거한다. 기사(entry) 리스트와 토픽(cluster) 리스트 모두 지원.
+    title/summary 필드만 참조하므로 두 경우 모두 동일하게 동작한다.
     영어 정규식 + 한/일 substring 매칭을 병행. 블랙 단독 → 제외, 블랙+화이트 → Gemini 위임."""
-    print("[2.5/4] AI 관련성 필터링 중...")
+    print("[1.5/4] AI 관련성 필터링 중 (임베딩 전)...")
     filtered = []
-    for topic in clustered:
-        text_lower = f"{topic['title']} {topic['summary']}".lower()
-        text_raw = f"{topic['title']} {topic['summary']}"
+    for item in items:
+        text_lower = f"{item['title']} {item['summary']}".lower()
+        text_raw = f"{item['title']} {item['summary']}"
 
         has_whitelist = (
             any(re.search(p, text_lower) for p in _WHITELIST_PATTERNS)
@@ -485,12 +505,12 @@ def filter_ai_relevant(clustered: list[dict]) -> list[dict]:
         )
 
         if has_blacklist and not has_whitelist:
-            print(f"   ✗ 제외: {topic['title'][:60]}")
+            print(f"   ✗ 제외: {item['title'][:60]}")
             continue
         if has_blacklist and has_whitelist:
-            print(f"   △ 애매: {topic['title'][:60]} → Gemini 판단 위임")
-        filtered.append(topic)
-    print(f"   ✓ {len(filtered)}/{len(clustered)}개 토픽 통과")
+            print(f"   △ 애매: {item['title'][:60]} → Gemini 판단 위임")
+        filtered.append(item)
+    print(f"   ✓ {len(filtered)}/{len(items)}개 통과")
     return filtered
 
 
@@ -588,6 +608,7 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
                 a["sources_jp"] = f"{count}社が報道"
                 a["original_title"] = topic["title"]
                 a["published"] = topic.get("date")
+                a["brand_key"] = topic.get("brand_key", "")
                 # 파비콘 도메인: Gemini가 반환한 company_domain 힌트를 우선 사용
                 # 화이트리스트 대신 형식 검증만 수행 → 사전 등록 안 된 기관도 자동 커버
                 # 형식 오류/환각 시 Google Favicon API가 기본 globe 아이콘을 반환하므로 피해 최소
@@ -686,6 +707,9 @@ def build_html(articles: list[dict], archive_link: str = "", feed_status: dict =
         company_html = f'<img class="company-icon" src="https://www.google.com/s2/favicons?domain={company}&amp;sz=64" alt="">' if company else ""
         published_html = f'<time class="card-time">{escape(published)}</time>' if published else ""
         featured = " featured" if i == 0 else ""
+        brand_key = a.get("brand_key", "")
+        brand_class = f" official brand-{brand_key}" if brand_key else ""
+        brand_attr = f' data-brand="{brand_key}"' if brand_key else ""
         # TTS audio 태그 생성
         audio_tags = ""
         if tts_data:
@@ -703,7 +727,7 @@ def build_html(articles: list[dict], archive_link: str = "", feed_status: dict =
         why_en = escape(a.get("why_en", ""))
         why_jp = escape(a.get("why_jp", ""))
         cards += f"""
-        <article class="card{featured}" style="animation-delay:{i * 0.12}s" tabindex="0" role="article" aria-label="{title_kr}">
+        <article class="card{featured}{brand_class}"{brand_attr} style="animation-delay:{i * 0.12}s" tabindex="0" role="article" aria-label="{title_kr}">
           {audio_tags}
           <div class="card-head">
             <span class="num">{num}</span>
@@ -778,6 +802,36 @@ def build_html(articles: list[dict], archive_link: str = "", feed_status: dict =
   .card:focus {{ outline:2px solid #6366f1; outline-offset:2px; }}
   .card.now-playing {{ border-color:#6366f1; box-shadow:0 0 20px #6366f120; }}
   .card-head {{ display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }}
+
+  /* ── Tier 0 공식 매체 브랜드 컬러 ── */
+  /* 상단 액센트 바(4px) + 은은한 배경 방사 글로우, 카드 기본 스타일 위에 덮어씀 */
+  .card.official {{ position:relative; overflow:hidden; }}
+  .card.official::before {{
+    content:""; position:absolute; top:0; left:0; right:0; height:4px;
+    background:var(--brand-bar, #6366f1); z-index:2;
+  }}
+  .card.official::after {{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:var(--brand-glow, radial-gradient(ellipse at top right, #6366f118, transparent 70%));
+    z-index:0;
+  }}
+  .card.official > * {{ position:relative; z-index:1; }}
+  /* OpenAI — 민트 그린 #10a37f */
+  .card.brand-openai {{ --brand-bar:#10a37f; --brand-glow:radial-gradient(ellipse at top right,#10a37f22,transparent 70%); border-color:#10a37f40; }}
+  .card.brand-openai:hover {{ border-color:#10a37f80; }}
+  /* Anthropic — Claude 주황 #cc785c */
+  .card.brand-anthropic {{ --brand-bar:#cc785c; --brand-glow:radial-gradient(ellipse at top right,#cc785c22,transparent 70%); border-color:#cc785c40; }}
+  .card.brand-anthropic:hover {{ border-color:#cc785c80; }}
+  /* Google/DeepMind — Gemini 4색 그라데이션 */
+  .card.brand-google {{ --brand-bar:linear-gradient(90deg,#4285f4 0%,#ea4335 33%,#fbbc04 66%,#34a853 100%); --brand-glow:radial-gradient(ellipse at top right,#4285f420,transparent 70%); border-color:#4285f440; }}
+  .card.brand-google:hover {{ border-color:#4285f480; }}
+  .card.brand-google::before {{ background:linear-gradient(90deg,#4285f4 0%,#ea4335 33%,#fbbc04 66%,#34a853 100%); }}
+  /* NVIDIA — 시그니처 그린 #76b900 */
+  .card.brand-nvidia {{ --brand-bar:#76b900; --brand-glow:radial-gradient(ellipse at top right,#76b90022,transparent 70%); border-color:#76b90040; }}
+  .card.brand-nvidia:hover {{ border-color:#76b90080; }}
+  /* Microsoft — Azure 블루 #0078d4 */
+  .card.brand-microsoft {{ --brand-bar:#0078d4; --brand-glow:radial-gradient(ellipse at top right,#0078d422,transparent 70%); border-color:#0078d440; }}
+  .card.brand-microsoft:hover {{ border-color:#0078d480; }}
 
   /* ── 1번 뉴스 강조 ── */
   .card.featured {{ padding:28px; border-color:#6366f130; background:linear-gradient(160deg,#12121c 0%,#14142a 100%); }}

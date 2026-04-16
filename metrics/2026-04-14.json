@@ -11,10 +11,20 @@
       "cross": 0,
       "rate": 0.0
     },
+    "AI | The Verge": {
+      "total": 5,
+      "cross": 3,
+      "rate": 0.6
+    },
+    "The Decoder": {
+      "total": 6,
+      "cross": 4,
+      "rate": 0.667
+    },
     "ITmedia AI＋ 最新記事一覧": {
       "total": 14,
-      "cross": 2,
-      "rate": 0.143
+      "cross": 3,
+      "rate": 0.214
     },
     "Artificial intelligence – MIT Technology Review": {
       "total": 2,
@@ -25,11 +35,6 @@
       "total": 3,
       "cross": 0,
       "rate": 0.0
-    },
-    "The Decoder": {
-      "total": 5,
-      "cross": 3,
-      "rate": 0.6
     },
     "The Rundown AI": {
       "total": 1,
@@ -47,11 +52,6 @@
       "rate": 0.0
     },
     "AI News & Artificial Intelligence | TechCrunch": {
-      "total": 4,
-      "cross": 3,
-      "rate": 0.75
-    },
-    "AI | The Verge": {
       "total": 4,
       "cross": 3,
       "rate": 0.75

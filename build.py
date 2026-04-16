@@ -72,11 +72,12 @@ def main():
         if not raw:
             raise RuntimeError("RSS 피드에서 수집된 뉴스가 없습니다.")
 
-        clustered_raw = cluster_articles(raw, GEMINI_API_KEY)
-        # 매체 통계 저장 (필터 전 데이터로 교차 보도율 측정)
-        metrics = collect_source_metrics(raw, clustered_raw)
+        # AI 관련성 필터를 임베딩 전으로 이동 — 비AI 기사는 벡터화하지 않아 API 호출 절감
+        filtered_raw = filter_ai_relevant(raw)
+        clustered = cluster_articles(filtered_raw, GEMINI_API_KEY)
+        # 매체 통계 저장 (필터 통과 기사 기준)
+        metrics = collect_source_metrics(filtered_raw, clustered)
         save_source_metrics(metrics)
-        clustered = filter_ai_relevant(clustered_raw)
         articles = curate_with_gemini(clustered, GEMINI_API_KEY)
 
         if not articles:

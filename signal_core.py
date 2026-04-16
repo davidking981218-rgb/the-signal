@@ -16,15 +16,17 @@ from io import BytesIO
 
 import edge_tts
 import feedparser
-import google.generativeai as genai
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+from google import genai
+from google.genai import types
 
 # ── 설정값 ──────────────────────────────────────────────
 NEWS_COUNT = 5
 MODEL = "gemini-2.5-flash"
-SIMILARITY_THRESHOLD = 0.20  # TF-IDF 기본 임계값 (고유명사 매칭과 병행)
-ENTITY_MATCH_THRESHOLD = 2   # 고유명사 2개 이상 겹치면 같은 토픽
+EMBEDDING_MODEL = "gemini-embedding-001"
+SIMILARITY_THRESHOLD = 0.85   # 임베딩 코사인 유사도 기준 (의미 기반, 다국어 호환). 0.80은 과묶음
+EMBEDDING_BATCH_SIZE = 100    # 배치당 텍스트 수 (요청당 20K 토큰 제한 안전 마진)
+EMBEDDING_BATCH_SLEEP = 20    # 배치 사이 대기 (초) — RPM/TPM 여유 확보
 GEMINI_MAX_RETRIES = 3
 KST = timezone(timedelta(hours=9))
 
@@ -64,7 +66,14 @@ ENTITY_DOMAINS = {
 }
 
 # 매체별 신뢰도 가중치 (AI 기술 기사 품질 기준, 매체 수 동일 시 정렬에 사용)
+TIER_0_WEIGHT = 4  # 공식 1차 소스: 단 1곳만 보도해도 최상위로 올림
 SOURCE_WEIGHT = {
+    # Tier 0 — 공식 1차 소스 (OpenAI/Google/Anthropic 등. 단독 보도라도 무조건 최상위)
+    "OpenAI News": 4,
+    "The latest research from Google": 4,          # Google Research
+    "Hugging Face - Blog": 4,
+    "Google DeepMind News": 4,
+    "Anthropic News": 4,                            # 커뮤니티 피드 (taobojlen/anthropic-rss-feed)
     # Tier 1 — AI 기술 속보 + 깊이
     "AI News & Artificial Intelligence | TechCrunch": 3,
     "AI | The Verge": 3,
@@ -76,7 +85,8 @@ SOURCE_WEIGHT = {
     "AI News": 2,
     "Synced": 2,
     "The Rundown AI": 2,
-    "AI타임스 - 전체기사": 2,
+    "AI타임스 - AI기술": 2,
+    "AI타임스 - AI산업": 2,
     "ITmedia AI＋ 最新記事一覧": 2,
     # Tier 3 — 종합 테크 (AI 외 기사 많음)
     "Feed: Artificial Intelligence Latest": 1,  # Wired
@@ -85,6 +95,12 @@ SOURCE_WEIGHT = {
 _DEFAULT_WEIGHT = 1
 
 RSS_FEEDS = [
+    # Tier 0 — 공식 1차 소스 (공식 발표, 논문, 연구 블로그)
+    "https://openai.com/news/rss.xml",              # OpenAI News
+    "https://research.google/blog/rss",              # Google Research
+    "https://huggingface.co/blog/feed.xml",          # Hugging Face Blog
+    "https://deepmind.google/blog/rss.xml",          # Google DeepMind
+    "https://raw.githubusercontent.com/taobojlen/anthropic-rss-feed/main/anthropic_news_rss.xml",  # Anthropic News (커뮤니티 피드, 매일 자동 갱신)
     # 종합 테크 (AI 섹션) — 속보 겹침 가능성 높음
     "https://techcrunch.com/category/artificial-intelligence/feed/",
     "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
@@ -99,8 +115,9 @@ RSS_FEEDS = [
     "https://syncedreview.com/feed/",
     # AI 뉴스레터 — 주요 뉴스 큐레이션
     "https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml",  # The Rundown AI
-    # 한국 AI 전문
-    "https://www.aitimes.com/rss/allArticle.xml",  # AI타임스
+    # 한국 AI 전문 (카테고리 분리 — allArticle 오염 제거)
+    "https://www.aitimes.com/rss/S1N24.xml",         # AI타임스 - AI기술
+    "https://www.aitimes.com/rss/S1N3.xml",          # AI타임스 - AI산업
     # 일본 AI 전문
     "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",  # ITmedia AI+
 ]
@@ -179,33 +196,42 @@ def fetch_rss() -> tuple[list[dict], dict]:
     return entries, feed_status
 
 
-# ── 2. TF-IDF 클러스터링 ─────────────────────────────────
+# ── 2. 임베딩 기반 클러스터링 ─────────────────────────────
 
-def _extract_entities(text: str) -> set[str]:
-    """텍스트에서 고유명사(회사/인물/제품)를 추출한다."""
-    text_lower = text.lower()
-    found = set()
-    for keyword, canonical in ENTITY_ALIASES.items():
-        if keyword in text_lower:
-            found.add(canonical)
-    return found
+def _embed_texts(texts: list[str], api_key: str) -> np.ndarray:
+    """Gemini embedding API로 텍스트를 벡터화한다. 배치 분할 + rate limit 여유 확보."""
+    client = genai.Client(api_key=api_key)
+    all_vectors: list[list[float]] = []
+    total_batches = (len(texts) + EMBEDDING_BATCH_SIZE - 1) // EMBEDDING_BATCH_SIZE
+    for b in range(total_batches):
+        batch = texts[b * EMBEDDING_BATCH_SIZE : (b + 1) * EMBEDDING_BATCH_SIZE]
+        print(f"   · 임베딩 배치 {b + 1}/{total_batches} ({len(batch)}개)...")
+        resp = client.models.embed_content(
+            model=EMBEDDING_MODEL,
+            contents=batch,
+            config=types.EmbedContentConfig(task_type="SEMANTIC_SIMILARITY"),
+        )
+        for emb in resp.embeddings:
+            all_vectors.append(emb.values)
+        if b < total_batches - 1:
+            time.sleep(EMBEDDING_BATCH_SLEEP)
+    return np.array(all_vectors, dtype=np.float32)
 
 
-def cluster_articles(entries: list[dict]) -> list[dict]:
-    """TF-IDF 코사인 유사도 + 고유명사 매칭으로 같은 토픽의 기사를 클러스터링한다."""
-    print("[2/4] TF-IDF + 고유명사 중복 감지 중...")
+def cluster_articles(entries: list[dict], api_key: str) -> list[dict]:
+    """Gemini 임베딩으로 같은 사건의 기사를 묶는다. 의미 기반 + 다국어 크로스링구얼 지원."""
+    print("[2/4] Gemini 임베딩 기반 중복 감지 중...")
 
     if not entries:
         return []
 
-    # TF-IDF 유사도
     texts = [f"{e['title']} {e['summary']}" for e in entries]
-    vectorizer = TfidfVectorizer(stop_words="english")
-    tfidf_matrix = vectorizer.fit_transform(texts)
-    sim_matrix = cosine_similarity(tfidf_matrix)
+    vectors = _embed_texts(texts, api_key)
 
-    # 고유명사 추출
-    entity_sets = [_extract_entities(t) for t in texts]
+    # 코사인 유사도 = 정규화 후 내적
+    norms = np.linalg.norm(vectors, axis=1, keepdims=True)
+    normalized = vectors / np.where(norms == 0, 1, norms)
+    sim_matrix = normalized @ normalized.T
 
     # Union-Find
     n = len(entries)
@@ -226,25 +252,22 @@ def cluster_articles(entries: list[dict]) -> list[dict]:
         for j in range(i + 1, n):
             if entries[i]["source"] == entries[j]["source"]:
                 continue
-            score = sim_matrix[i][j]
-            shared_entities = entity_sets[i] & entity_sets[j]
-            has_entity_overlap = len(shared_entities) >= ENTITY_MATCH_THRESHOLD
-            # 내용이 비슷하면 묶음, 고유명사 겹치면 기준을 낮춰서 묶음
-            if score >= SIMILARITY_THRESHOLD or (has_entity_overlap and score >= 0.10):
+            if sim_matrix[i][j] >= SIMILARITY_THRESHOLD:
                 union(i, j)
 
-    clusters = {}
+    clusters: dict[int, list[dict]] = {}
     for i in range(n):
         root = find(i)
-        if root not in clusters:
-            clusters[root] = []
-        clusters[root].append(entries[i])
+        clusters.setdefault(root, []).append(entries[i])
 
     grouped = []
     for arts in clusters.values():
         sources = list({a["source"] for a in arts})
         # 대표 기사: 매체 신뢰도가 가장 높은 기사, 동점이면 요약이 긴 기사
-        representative = max(arts, key=lambda a: (SOURCE_WEIGHT.get(a["source"], _DEFAULT_WEIGHT), len(a["summary"])))
+        representative = max(
+            arts,
+            key=lambda a: (SOURCE_WEIGHT.get(a["source"], _DEFAULT_WEIGHT), len(a["summary"])),
+        )
         grouped.append({
             "title": representative["title"],
             "summary": representative["summary"],
@@ -254,10 +277,13 @@ def cluster_articles(entries: list[dict]) -> list[dict]:
             "date": representative.get("date"),
         })
 
-    # 정렬: 매체 수 → 매체 신뢰도 (같은 매체 수끼리는 신뢰도 높은 매체가 위로)
+    # 정렬: Tier 0 포함 여부 → 매체 수 → 매체 신뢰도
+    # Tier 0(공식 1차 소스)이 단독 보도해도 무조건 최상위로 올림
     def _sort_key(topic):
         best_weight = max(SOURCE_WEIGHT.get(s, _DEFAULT_WEIGHT) for s in topic["sources"])
-        return (topic["source_count"], best_weight)
+        has_tier0 = best_weight >= TIER_0_WEIGHT
+        return (has_tier0, topic["source_count"], best_weight)
+
     grouped.sort(key=_sort_key, reverse=True)
     if grouped:
         print(f"   ✓ {len(grouped)}개 토픽 (최다 {grouped[0]['source_count']}개 매체 중복)")
@@ -266,14 +292,14 @@ def cluster_articles(entries: list[dict]) -> list[dict]:
 
 # ── 2.5. AI 관련성 필터 ────────────────────────────────
 
-# AI 기술과 무관한 뉴스를 걸러내는 블랙리스트 키워드
+# AI 기술과 무관한 뉴스를 걸러내는 블랙리스트 (영어 정규식)
 _BLACKLIST_PATTERNS = [
     r'\bthreat\b', r'\bsanction', r'\bmilitary\b', r'\bwar\b', r'\bweapon',
     r'\btariff', r'\btrade war', r'\belection', r'\bvote\b',
     r'\bkill', r'\bdeath\b', r'\bcrime\b', r'\barrest',
     r'\bdatacenter attack', r'\bcyberattack(?!.*detect)', r'\bhack(?!athon)',
 ]
-# AI 기술 관련 화이트리스트 (하나라도 매치되면 통과)
+# AI 기술 관련 화이트리스트 (영어 정규식, 하나라도 매치되면 통과)
 _WHITELIST_PATTERNS = [
     r'\bLLM\b', r'\bGPT', r'\btransformer\b', r'\bfine.?tun', r'\bRAG\b',
     r'\bmodel\b.*\b(?:train|launch|release|param)', r'\bagent\b',
@@ -286,21 +312,57 @@ _WHITELIST_PATTERNS = [
     r'\bregulat.*\bAI\b', r'\bAI act\b', r'\bAI policy',
 ]
 
+# 한국어/일본어 키워드 (단어 경계 없이 substring 매칭, 원문 대소문자 유지)
+_WHITELIST_SUBSTRINGS = [
+    # 한국어
+    "인공지능", "머신러닝", "딥러닝", "생성형", "생성 AI",
+    "대규모 언어모델", "언어모델", "언어 모델",
+    "클로드", "제미나이", "라마", "챗봇", "챗GPT",
+    "로봇", "자율주행", "에이전트", "프롬프트",
+    "오픈소스 모델", "파인튜닝", "미세 조정",
+    "이미지 생성", "영상 생성", "비디오 생성",
+    "거대언어모델", "초거대",
+    # 일본어
+    "人工知能", "機械学習", "深層学習", "生成AI", "生成 AI",
+    "大規模言語モデル", "言語モデル",
+    "クロード", "ジェミニ", "ロボット", "自動運転",
+    "エージェント", "プロンプト", "ファインチューニング",
+    "画像生成", "動画生成",
+]
+# 한국어/일본어 블랙리스트 (substring 매칭)
+_BLACKLIST_SUBSTRINGS = [
+    # 한국어 — AI와 확실히 무관한 주제
+    "재생에너지", "태양광", "풍력", "가정용 배터리", "에너지 대전환",
+    "기후환경에너지 대전", "지역축제", "녹색 산업",
+    "추경 예산", "추경예산", "유류비 지원",
+    "선거", "투표", "전쟁", "군사", "무기", "관세",
+    # 일본어
+    "エネルギー転換", "再生可能エネルギー", "戦争", "選挙",
+]
+
+
 def filter_ai_relevant(clustered: list[dict]) -> list[dict]:
     """AI 기술과 직접 관련 없는 토픽을 제거한다.
-    블랙리스트 단독 매치 → 제외, 블랙+화이트 동시 매치 → Gemini에게 위임(통과)."""
+    영어 정규식 + 한/일 substring 매칭을 병행. 블랙 단독 → 제외, 블랙+화이트 → Gemini 위임."""
     print("[2.5/4] AI 관련성 필터링 중...")
     filtered = []
     for topic in clustered:
-        text = f"{topic['title']} {topic['summary']}".lower()
-        has_whitelist = any(re.search(p, text) for p in _WHITELIST_PATTERNS)
-        has_blacklist = any(re.search(p, text) for p in _BLACKLIST_PATTERNS)
+        text_lower = f"{topic['title']} {topic['summary']}".lower()
+        text_raw = f"{topic['title']} {topic['summary']}"
+
+        has_whitelist = (
+            any(re.search(p, text_lower) for p in _WHITELIST_PATTERNS)
+            or any(sub in text_raw for sub in _WHITELIST_SUBSTRINGS)
+        )
+        has_blacklist = (
+            any(re.search(p, text_lower) for p in _BLACKLIST_PATTERNS)
+            or any(sub in text_raw for sub in _BLACKLIST_SUBSTRINGS)
+        )
+
         if has_blacklist and not has_whitelist:
-            # 블랙리스트만 매치 → AI와 무관한 뉴스 확실 → 제외
             print(f"   ✗ 제외: {topic['title'][:60]}")
             continue
         if has_blacklist and has_whitelist:
-            # 둘 다 매치 → 애매함 → Gemini가 최종 판단하도록 통과
             print(f"   △ 애매: {topic['title'][:60]} → Gemini 판단 위임")
         filtered.append(topic)
     print(f"   ✓ {len(filtered)}/{len(clustered)}개 토픽 통과")
@@ -313,8 +375,7 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
     """사전 클러스터링된 뉴스를 Gemini로 한국어 요약한다. 재시도 포함."""
     print("[3/4] Gemini로 한국어 요약 중...")
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(MODEL)
+    client = genai.Client(api_key=api_key)
 
     top_topics = clustered[:8]
     idx_to_topic = {i: t for i, t in enumerate(top_topics)}
@@ -367,7 +428,10 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
     verified = []
     for attempt in range(GEMINI_MAX_RETRIES):
         try:
-            response = model.generate_content(prompt)
+            response = client.models.generate_content(
+                model=MODEL,
+                contents=prompt,
+            )
             text = response.text.strip()
 
             if text.startswith("```"):
@@ -420,7 +484,7 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
             time.sleep(2)
 
         except Exception as e:
-            wait = 2 ** attempt
+            wait = 10 * (2 ** attempt)  # 10/20/40초 — 503 일시 과부하 대응
             print(f"   ⚠ 시도 {attempt+1}/{GEMINI_MAX_RETRIES} 실패: {e} ({wait}초 후 재시도)")
             time.sleep(wait)
 
@@ -513,7 +577,7 @@ def build_html(articles: list[dict], archive_link: str = "", feed_status: dict =
           </div>
           <div class="card-actions">
             <button class="card-play" onclick="playIdx({i})" aria-label="재생">▶</button>
-            <a href="{link}" target="_blank" rel="noopener noreferrer" class="card-source" aria-label="원문 보기">원문 보기 ↗</a>
+            <a href="{link}" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
             {published_html}
           </div>
         </article>"""
@@ -905,9 +969,11 @@ def update_source_weight(metrics_dir: str = "metrics", min_days: int = 7):
             totals[src] += vals.get("total", 0)
             crosses[src] += vals.get("cross", 0)
 
-    # 교차 보도율 기준으로 Tier 분류
+    # 교차 보도율 기준으로 Tier 분류. Tier 0(공식 1차 소스)은 자동 갱신에서 제외.
     new_weights = {}
     for src in totals:
+        if SOURCE_WEIGHT.get(src, _DEFAULT_WEIGHT) >= TIER_0_WEIGHT:
+            continue  # Tier 0는 수동 유지
         total = totals[src]
         cross = crosses[src]
         rate = cross / total if total > 0 else 0

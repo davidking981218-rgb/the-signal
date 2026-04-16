@@ -1,0 +1,45 @@
+{
+  "date": "2026-04-14",
+  "sources": {
+    "ITmedia AI＋ 最新記事一覧": {
+      "total": 12,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "AI | The Verge": {
+      "total": 5,
+      "cross": 3,
+      "rate": 0.6
+    },
+    "The Decoder": {
+      "total": 9,
+      "cross": 3,
+      "rate": 0.333
+    },
+    "AI News & Artificial Intelligence | TechCrunch": {
+      "total": 5,
+      "cross": 1,
+      "rate": 0.2
+    },
+    "AI타임스 - 전체기사": {
+      "total": 32,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "MarkTechPost": {
+      "total": 5,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "Feed: Artificial Intelligence Latest": {
+      "total": 3,
+      "cross": 1,
+      "rate": 0.333
+    },
+    "The Rundown AI": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    }
+  }
+}

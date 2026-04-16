@@ -7,7 +7,7 @@ import os
 import subprocess
 import tempfile
 
-from signal_core import fetch_rss, cluster_articles, curate_with_gemini, build_html, generate_tts, tts_to_data_uris
+from signal_core import fetch_rss, cluster_articles, filter_ai_relevant, curate_with_gemini, build_html, generate_tts, tts_to_data_uris
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
@@ -27,6 +27,7 @@ def main():
         return
 
     clustered = cluster_articles(raw)
+    clustered = filter_ai_relevant(clustered)
     articles = curate_with_gemini(clustered, GEMINI_API_KEY)
     tts_raw = generate_tts(articles)
     tts_data = tts_to_data_uris(tts_raw)

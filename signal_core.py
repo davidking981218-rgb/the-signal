@@ -48,6 +48,42 @@ ENTITY_ALIASES = {
     "xai": "xai", "grok": "xai", "elon musk": "xai",
 }
 
+# 고유명사 → 파비콘 도메인 (코드에서 직접 매핑, Gemini에게 맡기지 않음)
+ENTITY_DOMAINS = {
+    "openai": "openai.com",
+    "google": "google.com",
+    "anthropic": "anthropic.com",
+    "meta": "meta.com",
+    "microsoft": "microsoft.com",
+    "apple": "apple.com",
+    "nvidia": "nvidia.com",
+    "mistral": "mistral.ai",
+    "stability": "stability.ai",
+    "midjourney": "midjourney.com",
+    "xai": "x.ai",
+}
+
+# 매체별 신뢰도 가중치 (AI 기술 기사 품질 기준, 매체 수 동일 시 정렬에 사용)
+SOURCE_WEIGHT = {
+    # Tier 1 — AI 기술 속보 + 깊이
+    "AI News & Artificial Intelligence | TechCrunch": 3,
+    "AI | The Verge": 3,
+    "AI | VentureBeat": 3,
+    "The Decoder": 3,
+    # Tier 2 — AI 전문 매체
+    "MarkTechPost": 2,
+    "DailyAI": 2,
+    "AI News": 2,
+    "Synced": 2,
+    "The Rundown AI": 2,
+    "AI타임스 - 전체기사": 2,
+    "ITmedia AI＋ 最新記事一覧": 2,
+    # Tier 3 — 종합 테크 (AI 외 기사 많음)
+    "Feed: Artificial Intelligence Latest": 1,  # Wired
+    "Biz & IT - Ars Technica": 1,
+}
+_DEFAULT_WEIGHT = 1
+
 RSS_FEEDS = [
     # 종합 테크 (AI 섹션) — 속보 겹침 가능성 높음
     "https://techcrunch.com/category/artificial-intelligence/feed/",
@@ -63,6 +99,10 @@ RSS_FEEDS = [
     "https://syncedreview.com/feed/",
     # AI 뉴스레터 — 주요 뉴스 큐레이션
     "https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml",  # The Rundown AI
+    # 한국 AI 전문
+    "https://www.aitimes.com/rss/allArticle.xml",  # AI타임스
+    # 일본 AI 전문
+    "https://rss.itmedia.co.jp/rss/2.0/aiplus.xml",  # ITmedia AI+
 ]
 
 
@@ -82,32 +122,54 @@ def fetch_rss() -> tuple[list[dict], dict]:
     """RSS 피드에서 최신 AI 뉴스를 수집한다. (기사 목록, 피드 건강 상태) 반환."""
     print("[1/4] RSS 피드 수집 중...")
 
+    from calendar import timegm
+
     entries = []
     feed_status = {"ok": [], "fail": []}
-    for url in RSS_FEEDS:
-        try:
-            feed = feedparser.parse(url)
-            if feed.bozo and not feed.entries:
-                raise ValueError(feed.bozo_exception)
-            source = feed.feed.get("title", "Unknown")
-            for entry in feed.entries[:5]:
-                title = _strip_html(entry.get("title", ""))
-                summary = _strip_html(entry.get("summary", "") or entry.get("description", ""))
-                link = entry.get("link", "")
-                published = entry.get("published_parsed") or entry.get("updated_parsed")
-                entries.append({
-                    "source": source,
-                    "title": title,
-                    "summary": summary[:300],
-                    "link": link,
-                    "date": published,
-                })
-            feed_status["ok"].append(source)
-        except Exception as e:
-            feed_status["fail"].append(url.split("/")[2])  # 도메인만 저장
-            print(f"   ⚠ 피드 실패: {url} ({e})")
 
-    entries.sort(key=lambda x: x["date"] or (0,), reverse=True)
+    def _collect(cutoff_hours):
+        """지정된 시간 이내의 기사만 수집한다."""
+        result = []
+        cutoff = datetime.now(KST) - timedelta(hours=cutoff_hours)
+        for url in RSS_FEEDS:
+            try:
+                feed = feedparser.parse(url)
+                if feed.bozo and not feed.entries:
+                    raise ValueError(feed.bozo_exception)
+                source = feed.feed.get("title", "Unknown")
+                for entry in feed.entries:
+                    published = entry.get("published_parsed") or entry.get("updated_parsed")
+                    if not published:
+                        continue
+                    pub_dt = datetime.fromtimestamp(timegm(published), tz=KST)
+                    if pub_dt < cutoff:
+                        continue
+                    title = _strip_html(entry.get("title", ""))
+                    summary = _strip_html(entry.get("summary", "") or entry.get("description", ""))
+                    link = entry.get("link", "")
+                    result.append({
+                        "source": source,
+                        "title": title,
+                        "summary": summary[:300],
+                        "link": link,
+                        "date": published,
+                    })
+                if not feed_status.get("_done"):
+                    feed_status["ok"].append(source)
+            except Exception as e:
+                if not feed_status.get("_done"):
+                    feed_status["fail"].append(url.split("/")[2])
+                    print(f"   ⚠ 피드 실패: {url} ({e})")
+        return result
+
+    entries = _collect(24)
+    feed_status["_done"] = True
+
+    if len(entries) < NEWS_COUNT:
+        print(f"   ⚠ 24시간 이내 기사 {len(entries)}개 < {NEWS_COUNT}개, 36시간으로 확장...")
+        entries = _collect(36)
+
+    entries.sort(key=lambda x: x["date"], reverse=True)
     ok, fail = len(feed_status["ok"]), len(feed_status["fail"])
     print(f"   ✓ {len(entries)}개 원문 수집 (성공 {ok}/{len(RSS_FEEDS)}, 실패 {fail})")
 
@@ -164,12 +226,11 @@ def cluster_articles(entries: list[dict]) -> list[dict]:
         for j in range(i + 1, n):
             if entries[i]["source"] == entries[j]["source"]:
                 continue
-            # 조건 1: TF-IDF 유사도 충족
-            tfidf_match = sim_matrix[i][j] >= SIMILARITY_THRESHOLD
-            # 조건 2: 고유명사 N개 이상 겹침
+            score = sim_matrix[i][j]
             shared_entities = entity_sets[i] & entity_sets[j]
-            entity_match = len(shared_entities) >= ENTITY_MATCH_THRESHOLD
-            if tfidf_match or entity_match:
+            has_entity_overlap = len(shared_entities) >= ENTITY_MATCH_THRESHOLD
+            # 내용이 비슷하면 묶음, 고유명사 겹치면 기준을 낮춰서 묶음
+            if score >= SIMILARITY_THRESHOLD or (has_entity_overlap and score >= 0.10):
                 union(i, j)
 
     clusters = {}
@@ -182,7 +243,8 @@ def cluster_articles(entries: list[dict]) -> list[dict]:
     grouped = []
     for arts in clusters.values():
         sources = list({a["source"] for a in arts})
-        representative = max(arts, key=lambda a: len(a["summary"]))
+        # 대표 기사: 매체 신뢰도가 가장 높은 기사, 동점이면 요약이 긴 기사
+        representative = max(arts, key=lambda a: (SOURCE_WEIGHT.get(a["source"], _DEFAULT_WEIGHT), len(a["summary"])))
         grouped.append({
             "title": representative["title"],
             "summary": representative["summary"],
@@ -192,10 +254,57 @@ def cluster_articles(entries: list[dict]) -> list[dict]:
             "date": representative.get("date"),
         })
 
-    grouped.sort(key=lambda x: x["source_count"], reverse=True)
+    # 정렬: 매체 수 → 매체 신뢰도 (같은 매체 수끼리는 신뢰도 높은 매체가 위로)
+    def _sort_key(topic):
+        best_weight = max(SOURCE_WEIGHT.get(s, _DEFAULT_WEIGHT) for s in topic["sources"])
+        return (topic["source_count"], best_weight)
+    grouped.sort(key=_sort_key, reverse=True)
     if grouped:
         print(f"   ✓ {len(grouped)}개 토픽 (최다 {grouped[0]['source_count']}개 매체 중복)")
     return grouped
+
+
+# ── 2.5. AI 관련성 필터 ────────────────────────────────
+
+# AI 기술과 무관한 뉴스를 걸러내는 블랙리스트 키워드
+_BLACKLIST_PATTERNS = [
+    r'\bthreat\b', r'\bsanction', r'\bmilitary\b', r'\bwar\b', r'\bweapon',
+    r'\btariff', r'\btrade war', r'\belection', r'\bvote\b',
+    r'\bkill', r'\bdeath\b', r'\bcrime\b', r'\barrest',
+    r'\bdatacenter attack', r'\bcyberattack(?!.*detect)', r'\bhack(?!athon)',
+]
+# AI 기술 관련 화이트리스트 (하나라도 매치되면 통과)
+_WHITELIST_PATTERNS = [
+    r'\bLLM\b', r'\bGPT', r'\btransformer\b', r'\bfine.?tun', r'\bRAG\b',
+    r'\bmodel\b.*\b(?:train|launch|release|param)', r'\bagent\b',
+    r'\bdiffusion\b', r'\bimage generat', r'\bvideo generat',
+    r'\brobot', r'\bautonomous', r'\bself.?driving',
+    r'\bchip\b.*\b(?:AI|GPU|NPU)', r'\bGPU\b', r'\bTPU\b',
+    r'\bopen.?source.*model', r'\bbenchmark\b', r'\btoken\b',
+    r'\bprompt', r'\bchatbot\b', r'\bcopilot\b', r'\bassistant\b',
+    r'\bAPI\b.*\b(?:launch|release|update)', r'\bsafety\b.*\bAI\b',
+    r'\bregulat.*\bAI\b', r'\bAI act\b', r'\bAI policy',
+]
+
+def filter_ai_relevant(clustered: list[dict]) -> list[dict]:
+    """AI 기술과 직접 관련 없는 토픽을 제거한다.
+    블랙리스트 단독 매치 → 제외, 블랙+화이트 동시 매치 → Gemini에게 위임(통과)."""
+    print("[2.5/4] AI 관련성 필터링 중...")
+    filtered = []
+    for topic in clustered:
+        text = f"{topic['title']} {topic['summary']}".lower()
+        has_whitelist = any(re.search(p, text) for p in _WHITELIST_PATTERNS)
+        has_blacklist = any(re.search(p, text) for p in _BLACKLIST_PATTERNS)
+        if has_blacklist and not has_whitelist:
+            # 블랙리스트만 매치 → AI와 무관한 뉴스 확실 → 제외
+            print(f"   ✗ 제외: {topic['title'][:60]}")
+            continue
+        if has_blacklist and has_whitelist:
+            # 둘 다 매치 → 애매함 → Gemini가 최종 판단하도록 통과
+            print(f"   △ 애매: {topic['title'][:60]} → Gemini 판단 위임")
+        filtered.append(topic)
+    print(f"   ✓ {len(filtered)}/{len(clustered)}개 토픽 통과")
+    return filtered
 
 
 # ── 3. Gemini 요약 + 검증 ────────────────────────────────
@@ -208,10 +317,7 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
     model = genai.GenerativeModel(MODEL)
 
     top_topics = clustered[:8]
-    valid_urls = {t["link"] for t in top_topics}
-    source_count_map = {t["link"]: t["source_count"] for t in top_topics}
-    original_title_map = {t["link"]: t["title"] for t in top_topics}
-    date_map = {t["link"]: t.get("date") for t in top_topics}
+    idx_to_topic = {i: t for i, t in enumerate(top_topics)}
 
     articles_text = ""
     for i, t in enumerate(top_topics):
@@ -220,7 +326,6 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
             f"대표 제목: {t['title']}\n"
             f"원문 요약: {t['summary']}\n"
             f"보도 매체: {', '.join(t['sources'])}\n"
-            f"URL: {t['link']}\n"
         )
 
     today = now_kst().strftime("%Y년 %m월 %d일")
@@ -232,32 +337,29 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
 {articles_text}
 
 ## 규칙 (엄격히 준수)
-1. AI/인공지능과 직접 관련 없는 토픽은 무조건 제외하세요 (영화, 스포츠, 일반 테크 기기 리뷰 등).
+1. AI 기술/제품/연구와 직접 관련 없는 토픽은 무조건 제외하세요. AI 회사가 언급되더라도 내용이 정치, 군사, 외교, 부동산, 데이터센터 물리적 위협 등이면 제외합니다.
 2. 남은 토픽 중 상위 {NEWS_COUNT}개를 선택하세요 (중복 보도 수가 많은 순).
 3. 각 토픽의 "원문 요약"에 있는 정보만 사용하세요. 원문에 없는 내용을 추가하거나 추측하지 마세요.
 4. 한국어로 번역/요약하되, 사실관계를 변경하지 마세요.
-5. "sources" 값은 위에 표기된 "중복 보도: N개 매체"의 N을 그대로 사용하세요.
-6. "link" 값은 위 목록의 URL을 한 글자도 바꾸지 말고 그대로 복사하세요.
+5. "topic_index"는 위 목록의 [토픽 N]에서 N을 그대로 사용하세요.
 
 다른 텍스트 없이 JSON 배열만 출력하세요.
 
 [
   {{
+    "topic_index": 토픽 번호 (정수),
     "tag_kr": "카테고리 한국어 (LLM, 이미지AI, 로보틱스, 규제, 기업동향, 연구 중 하나)",
     "tag_en": "카테고리 영어 (LLM, Image AI, Robotics, Regulation, Industry, Research 중 하나)",
     "tag_jp": "카테고리 일본어 (LLM, 画像AI, ロボティクス, 規制, 企業動向, 研究 중 하나)",
     "title_kr": "한국어 제목 (20자 이내)",
     "title_en": "영어 제목 (20자 이내)",
     "title_jp": "일본어 제목 (20자 이내)",
-    "company": "관련 회사 도메인 (openai.com, google.com 등). 없으면 빈 문자열",
     "summary_kr": "한국어 핵심 요약 (2~3문장)",
     "summary_en": "영어 핵심 요약 (2~3문장)",
     "summary_jp": "일본어 핵심 요약 (2~3문장)",
     "why_kr": "왜 중요한가 (한국어 1문장)",
     "why_en": "왜 중요한가 (영어 1문장)",
-    "why_jp": "왜 중요한가 (일본어 1문장)",
-    "sources": "N개 매체 보도",
-    "link": "원문 URL (위 목록에서 그대로 복사)"
+    "why_jp": "왜 중요한가 (일본어 1문장)"
   }}
 ]"""
 
@@ -275,19 +377,41 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
 
             articles = json.loads(text)
 
-            # 검증: URL 일치 + 매체수 강제 덮어쓰기 + 원문 제목 보존
+            # topic_index로 원본 매칭 → URL·매체수·제목은 코드에서 직접 매핑 (Gemini는 요약만 담당)
             verified = []
+            seen_indices = set()
             for a in articles:
-                link = a.get("link", "")
-                if link not in valid_urls:
-                    print(f"   ⚠ 검증 실패 (URL 불일치): {a.get('title_kr', '')}")
+                idx = a.get("topic_index")
+                if not isinstance(idx, int):
                     continue
-                count = source_count_map[link]
+                idx -= 1  # 1-based → 0-based
+                topic = idx_to_topic.get(idx)
+                if topic is None or idx in seen_indices:
+                    continue
+                seen_indices.add(idx)
+
+                # 원본 데이터로 덮어쓰기 (Gemini에게 맡기지 않는 필드)
+                a["link"] = topic["link"]
+                count = topic["source_count"]
                 a["sources_kr"] = f"{count}개 매체 보도"
                 a["sources_en"] = f"Covered by {count} sources"
                 a["sources_jp"] = f"{count}社が報道"
-                a["original_title"] = original_title_map.get(link, "")
-                a["published"] = date_map.get(link)
+                a["original_title"] = topic["title"]
+                a["published"] = topic.get("date")
+                # 파비콘 도메인: 제목 우선 매칭, 없으면 본문에서 탐색
+                title_lower = topic['title'].lower()
+                summary_lower = topic['summary'].lower()
+                domain = ""
+                for keyword, canonical in ENTITY_ALIASES.items():
+                    if keyword in title_lower and canonical in ENTITY_DOMAINS:
+                        domain = ENTITY_DOMAINS[canonical]
+                        break
+                if not domain:
+                    for keyword, canonical in ENTITY_ALIASES.items():
+                        if keyword in summary_lower and canonical in ENTITY_DOMAINS:
+                            domain = ENTITY_DOMAINS[canonical]
+                            break
+                a["company"] = domain
                 verified.append(a)
 
             if len(verified) >= NEWS_COUNT:
@@ -314,8 +438,8 @@ def _format_published(date_tuple) -> str:
     if not date_tuple:
         return ""
     try:
-        from time import mktime
-        dt = datetime.fromtimestamp(mktime(date_tuple), tz=KST)
+        from calendar import timegm
+        dt = datetime.fromtimestamp(timegm(date_tuple), tz=KST)
         return dt.strftime("%m/%d %H:%M")
     except Exception:
         return ""
@@ -410,11 +534,14 @@ def build_html(articles: list[dict], archive_link: str = "", feed_status: dict =
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>THE SIGNAL — AI Daily Briefing</title>
-<meta name="description" content="AI 뉴스 데일리 브리핑 — 11개 글로벌 매체에서 수집한 오늘의 AI 뉴스">
+<meta name="description" content="AI 뉴스 데일리 브리핑 — {len(RSS_FEEDS)}개 글로벌 매체에서 수집한 오늘의 AI 뉴스">
 <meta property="og:title" content="THE SIGNAL — {today_iso}">
 <meta property="og:description" content="{first_title}. {first_summary}">
 <meta property="og:type" content="article">
 <meta property="og:locale" content="ko_KR">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -525,11 +652,11 @@ def build_html(articles: list[dict], archive_link: str = "", feed_status: dict =
     <div class="masthead-rule"></div>
     <h1>The Signal</h1>
     <div class="date">{today}</div>
-    <div class="edition">AI Daily Briefing — {len(articles)} stories from 11 sources</div>
+    <div class="edition">AI Daily Briefing — {len(articles)} stories from {len(RSS_FEEDS)} sources</div>
     <div class="subtitle">
-      <span class="lang kr">11개 글로벌 AI 매체의 중복 보도를 분석해 오늘의 핵심 뉴스만 선별합니다</span>
-      <span class="lang en" style="display:none">Curated from 11 global AI sources — ranked by cross-coverage frequency</span>
-      <span class="lang jp" style="display:none">11のグローバルAIメディアの重複報道を分析し、今日の重要ニュースを厳選</span>
+      <span class="lang kr">{len(RSS_FEEDS)}개 글로벌 AI 매체의 중복 보도를 분석해 오늘의 핵심 뉴스만 선별합니다</span>
+      <span class="lang en" style="display:none">Curated from {len(RSS_FEEDS)} global AI sources — ranked by cross-coverage frequency</span>
+      <span class="lang jp" style="display:none">{len(RSS_FEEDS)}のグローバルAIメディアの重複報道を分析し、今日の重要ニュースを厳選</span>
     </div>
     <div class="lang-switch" role="group" aria-label="언어 선택">
       <button class="ls-btn active" onclick="setLang('kr')" aria-label="한국어">KR</button>
@@ -717,7 +844,89 @@ def build_error_html(error_msg: str) -> str:
 <p><a href="archive/" style="color:#6366f1;">지난 브리핑 보기 →</a></p></div></body></html>"""
 
 
-# ── 5. Discord 알림 ──────────────────────────────────────
+# ── 5. 매체 통계 수집 ─────────────────────────────────────
+
+def collect_source_metrics(entries: list[dict], clustered: list[dict]) -> dict:
+    """매체별 교차 보도율을 계산한다. 매일 기록하여 가중치 산출에 사용."""
+    from collections import defaultdict
+    source_total = defaultdict(int)
+    source_cross = defaultdict(int)
+
+    for e in entries:
+        source_total[e["source"]] += 1
+
+    for topic in clustered:
+        if topic["source_count"] >= 2:
+            for src in topic["sources"]:
+                source_cross[src] += 1
+
+    metrics = {}
+    for src in source_total:
+        total = source_total[src]
+        cross = source_cross[src]
+        metrics[src] = {"total": total, "cross": cross, "rate": round(cross / total, 3) if total else 0}
+    return metrics
+
+
+def save_source_metrics(metrics: dict, metrics_dir: str = "metrics"):
+    """매체 통계를 날짜별 JSON으로 저장한다."""
+    import os
+    os.makedirs(metrics_dir, exist_ok=True)
+    date_str = now_kst().strftime("%Y-%m-%d")
+    path = os.path.join(metrics_dir, f"{date_str}.json")
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump({"date": date_str, "sources": metrics}, f, ensure_ascii=False, indent=2)
+    print(f"   ✓ 매체 통계 저장: {path}")
+
+
+def update_source_weight(metrics_dir: str = "metrics", min_days: int = 7):
+    """축적된 매체 통계로 SOURCE_WEIGHT를 자동 갱신한다. min_days 이상 데이터가 있을 때만."""
+    import os
+    from collections import defaultdict
+
+    global SOURCE_WEIGHT
+
+    if not os.path.exists(metrics_dir):
+        return False
+
+    files = [f for f in os.listdir(metrics_dir) if f.endswith(".json")]
+    if len(files) < min_days:
+        print(f"   ⏳ 매체 통계 {len(files)}일치 (최소 {min_days}일 필요) — 하드코딩 가중치 유지")
+        return False
+
+    totals = defaultdict(int)
+    crosses = defaultdict(int)
+
+    for f in files:
+        path = os.path.join(metrics_dir, f)
+        with open(path, "r", encoding="utf-8") as fp:
+            data = json.load(fp)
+        for src, vals in data.get("sources", {}).items():
+            totals[src] += vals.get("total", 0)
+            crosses[src] += vals.get("cross", 0)
+
+    # 교차 보도율 기준으로 Tier 분류
+    new_weights = {}
+    for src in totals:
+        total = totals[src]
+        cross = crosses[src]
+        rate = cross / total if total > 0 else 0
+        if rate >= 0.25:
+            new_weights[src] = 3  # Tier 1: 기사의 25% 이상이 다른 매체도 보도
+        elif rate >= 0.10:
+            new_weights[src] = 2  # Tier 2: 10~25%
+        else:
+            new_weights[src] = 1  # Tier 3: 10% 미만
+
+    SOURCE_WEIGHT.update(new_weights)
+    print(f"   ✓ 매체 신뢰도 자동 갱신 ({len(files)}일 데이터 기반)")
+    for src, w in sorted(new_weights.items(), key=lambda x: x[1], reverse=True):
+        rate = crosses[src] / totals[src] * 100 if totals[src] else 0
+        print(f"     Tier {4-w}: {rate:.0f}% — {src}")
+    return True
+
+
+# ── 6. Discord 알림 ──────────────────────────────────────
 
 def notify_discord(webhook_url: str, articles: list[dict], page_url: str):
     """Discord 웹훅으로 오늘의 브리핑 알림을 보낸다."""
@@ -732,7 +941,7 @@ def notify_discord(webhook_url: str, articles: list[dict], page_url: str):
             "title": f"📡 THE SIGNAL — {today}",
             "description": f"{headlines}\n\n[브리핑 보기]({page_url})",
             "color": 0x6366f1,
-            "footer": {"text": f"{len(articles)}개 뉴스 · 10개 매체에서 수집"}
+            "footer": {"text": f"{len(articles)}개 뉴스 · {len(RSS_FEEDS)}개 매체에서 수집"}
         }]
     })
 
@@ -748,7 +957,7 @@ def notify_discord(webhook_url: str, articles: list[dict], page_url: str):
         print(f"   ⚠ Discord 알림 실패: {e}")
 
 
-# ── 6. Edge TTS ──────────────────────────────────────────
+# ── 7. Edge TTS ──────────────────────────────────────────
 
 async def _generate_tts_async(text: str, voice: str) -> bytes:
     """Edge TTS로 mp3 바이트를 생성한다."""
@@ -791,7 +1000,12 @@ def generate_tts(articles: list[dict]) -> dict:
     for lang, voice in TTS_VOICES.items():
         full_text = ""
         for j, a in enumerate(articles):
-            full_text += f"{j+1}번 뉴스. {a.get(f'title_{lang}', '')}. {a.get(f'summary_{lang}', '')} "
+            if lang == "en":
+                full_text += f"News number {j+1}. {a.get(f'title_{lang}', '')}. {a.get(f'summary_{lang}', '')} "
+            elif lang == "jp":
+                full_text += f"{j+1}番目のニュース。 {a.get(f'title_{lang}', '')}。 {a.get(f'summary_{lang}', '')} "
+            else:
+                full_text += f"{j+1}번 뉴스. {a.get(f'title_{lang}', '')}. {a.get(f'summary_{lang}', '')} "
         try:
             mp3_bytes = asyncio.run(_generate_tts_async(full_text, voice))
             result[f"{lang}_all"] = mp3_bytes

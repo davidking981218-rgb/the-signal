@@ -1,13 +1,13 @@
 # THE SIGNAL — AI Daily Briefing
 
-11개 글로벌 AI 매체에서 뉴스를 수집하고, TF-IDF + 고유명사 매칭으로 중복 보도를 감지하여 중요도를 판별한 뒤, Gemini로 한국어/영어/일본어 3개 국어 요약을 제공하는 AI 뉴스 큐레이션 서비스.
+13개 글로벌 AI 매체(영어/한국어/일본어)에서 뉴스를 수집하고, TF-IDF + 고유명사 매칭으로 중복 보도를 감지하여 중요도를 판별한 뒤, Gemini로 한국어/영어/일본어 3개 국어 요약을 제공하는 AI 뉴스 큐레이션 서비스.
 
 **Live:** https://davidking981218-rgb.github.io/the-signal/
 
 ## Architecture
 
 ```
-RSS 11개 매체 (매일 55+ 기사)
+RSS 13개 매체 (매일 65+ 기사, EN/KR/JP)
     ↓
 TF-IDF 코사인 유사도 + 고유명사 매칭 (30+ 동의어 사전)
     ↓
@@ -91,21 +91,23 @@ python ai_briefing.py
 3. (선택) `DISCORD_WEBHOOK` 등록하면 매일 알림 발송
 4. Actions가 매일 09:00 KST에 자동 빌드 + 배포
 
-## News Sources (11)
+## News Sources (13)
 
-| 매체 | 유형 |
-|------|------|
-| TechCrunch AI | 종합 테크 |
-| The Verge AI | 종합 테크 |
-| VentureBeat AI | 종합 테크 |
-| Wired AI | 종합 테크 |
-| Ars Technica | 종합 테크 |
-| The Decoder | AI 전문 |
-| MarkTechPost | AI 전문 |
-| DailyAI | AI 전문 |
-| Synced Review | AI 전문 |
-| AI News | AI 전문 |
-| The Rundown AI | AI 뉴스레터 |
+| 매체 | 유형 | 언어 |
+|------|------|------|
+| TechCrunch AI | 종합 테크 | EN |
+| The Verge AI | 종합 테크 | EN |
+| VentureBeat AI | 종합 테크 | EN |
+| Wired AI | 종합 테크 | EN |
+| Ars Technica | 종합 테크 | EN |
+| The Decoder | AI 전문 | EN |
+| MarkTechPost | AI 전문 | EN |
+| DailyAI | AI 전문 | EN |
+| Synced Review | AI 전문 | EN |
+| AI News | AI 전문 | EN |
+| The Rundown AI | AI 뉴스레터 | EN |
+| AI타임스 | AI 전문 | KR |
+| ITmedia AI+ | AI 전문 | JP |
 
 `signal_core.py`의 `RSS_FEEDS`에서 추가/삭제 가능.
 
@@ -117,5 +119,5 @@ python ai_briefing.py
 | `Gemini 3회 시도 모두 실패` | API 키 유효성 확인, 무료 한도 초과 여부 확인 |
 | 뉴스가 AI와 무관 | Gemini 프롬프트에 필터링 규칙 포함됨, 재실행 시 개선 |
 | TTS 음성 없음 | `pip install edge-tts` 확인, 인터넷 연결 필요 |
-| 피드 N/11 실패 | 일시적 네트워크 문제, 나머지 피드로 정상 작동 |
+| 피드 N/13 실패 | 일시적 네트워크 문제, 나머지 피드로 정상 작동 |
 | Actions에서 아카이브 push 실패 | 동일 날짜 재실행 시 발생 가능, `git pull --rebase`로 자동 해결 |

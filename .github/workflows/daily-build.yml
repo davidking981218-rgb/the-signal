@@ -2,8 +2,8 @@ name: Daily AI Briefing
 
 on:
   schedule:
-    # 매일 한국시간 09:00 (UTC 00:00)
-    - cron: '0 0 * * *'
+    # 매일 한국시간 05:00 (UTC 20:00 전날)
+    - cron: '0 20 * * *'
   workflow_dispatch: # 수동 실행 가능
 
 jobs:
@@ -35,7 +35,7 @@ jobs:
           git stash --include-untracked
           git pull --rebase origin master
           git stash pop || true
-          git add archive/
+          git add archive/ metrics/
           git diff --cached --quiet || git commit -m "archive: $(date -u +%Y-%m-%d)"
           git push
 

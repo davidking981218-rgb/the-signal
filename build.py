@@ -7,8 +7,9 @@ import os
 import shutil
 from html import escape
 from signal_core import (
-    fetch_rss, cluster_articles, curate_with_gemini,
+    fetch_rss, cluster_articles, filter_ai_relevant, curate_with_gemini,
     build_html, build_error_html, notify_discord, generate_tts, tts_to_files, now_kst,
+    collect_source_metrics, save_source_metrics, update_source_weight,
 )
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
@@ -48,6 +49,9 @@ def main():
     today_str = now_kst().strftime("%Y-%m-%d")
 
     os.makedirs("public/archive", exist_ok=True)
+    for fav in ["favicon.png", "favicon-32.png", "favicon-180.png"]:
+        if os.path.exists(fav):
+            shutil.copy2(fav, f"public/{fav}")
     if os.path.exists("archive"):
         for f in os.listdir("archive"):
             if f.endswith(".html"):
@@ -61,11 +65,18 @@ def main():
         return
 
     try:
+        # 매체 신뢰도 자동 갱신 (7일 이상 데이터 있으면)
+        update_source_weight()
+
         raw, feed_status = fetch_rss()
         if not raw:
             raise RuntimeError("RSS 피드에서 수집된 뉴스가 없습니다.")
 
-        clustered = cluster_articles(raw)
+        clustered_raw = cluster_articles(raw)
+        # 매체 통계 저장 (필터 전 데이터로 교차 보도율 측정)
+        metrics = collect_source_metrics(raw, clustered_raw)
+        save_source_metrics(metrics)
+        clustered = filter_ai_relevant(clustered_raw)
         articles = curate_with_gemini(clustered, GEMINI_API_KEY)
 
         if not articles:
@@ -84,14 +95,17 @@ def main():
             f.write(build_archive_index("public/archive"))
         raise
 
+    # 아카이브용 HTML (archive_link를 상대경로 보정)
+    archive_html = build_html(articles, archive_link="./", feed_status=feed_status, tts_data=tts_data)
+
     # 성공
     with open("public/index.html", "w", encoding="utf-8") as f:
         f.write(html)
     with open(f"public/archive/{today_str}.html", "w", encoding="utf-8") as f:
-        f.write(html)
+        f.write(archive_html)
     os.makedirs("archive", exist_ok=True)
     with open(f"archive/{today_str}.html", "w", encoding="utf-8") as f:
-        f.write(html)
+        f.write(archive_html)
     with open("public/archive/index.html", "w", encoding="utf-8") as f:
         f.write(build_archive_index("public/archive"))
 

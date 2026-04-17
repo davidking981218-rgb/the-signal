@@ -1,30 +1,35 @@
 {
   "date": "2026-04-17",
   "sources": {
-    "Simon Willison's Weblog": {
-      "total": 5,
-      "cross": 1,
-      "rate": 0.2
-    },
-    "AI News & Artificial Intelligence | TechCrunch": {
-      "total": 13,
-      "cross": 3,
-      "rate": 0.231
-    },
-    "ITmedia AI＋ 最新記事一覧": {
-      "total": 7,
-      "cross": 3,
-      "rate": 0.429
-    },
     "AI타임스 - AI산업": {
       "total": 20,
       "cross": 5,
       "rate": 0.25
     },
+    "ITmedia AI＋ 最新記事一覧": {
+      "total": 9,
+      "cross": 3,
+      "rate": 0.333
+    },
+    "AI News & Artificial Intelligence | TechCrunch": {
+      "total": 16,
+      "cross": 3,
+      "rate": 0.188
+    },
+    "MarkTechPost": {
+      "total": 4,
+      "cross": 0,
+      "rate": 0.0
+    },
     "Latest stories for ZDNET in Artificial Intelligence": {
       "total": 3,
       "cross": 2,
       "rate": 0.667
+    },
+    "Simon Willison's Weblog": {
+      "total": 3,
+      "cross": 1,
+      "rate": 0.333
     },
     "Feed: Artificial Intelligence Latest": {
       "total": 5,
@@ -68,11 +73,6 @@
     },
     "The Rundown AI": {
       "total": 1,
-      "cross": 0,
-      "rate": 0.0
-    },
-    "MarkTechPost": {
-      "total": 3,
       "cross": 0,
       "rate": 0.0
     },

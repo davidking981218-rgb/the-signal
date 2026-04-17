@@ -6,6 +6,11 @@
       "cross": 5,
       "rate": 0.25
     },
+    "MarkTechPost": {
+      "total": 5,
+      "cross": 1,
+      "rate": 0.2
+    },
     "ITmedia AI＋ 最新記事一覧": {
       "total": 9,
       "cross": 3,
@@ -15,11 +20,6 @@
       "total": 16,
       "cross": 3,
       "rate": 0.188
-    },
-    "MarkTechPost": {
-      "total": 4,
-      "cross": 0,
-      "rate": 0.0
     },
     "Latest stories for ZDNET in Artificial Intelligence": {
       "total": 3,
@@ -67,19 +67,14 @@
       "rate": 0.0
     },
     "OpenAI News": {
-      "total": 3,
-      "cross": 1,
-      "rate": 0.333
+      "total": 2,
+      "cross": 2,
+      "rate": 1.0
     },
     "The Rundown AI": {
       "total": 1,
       "cross": 0,
       "rate": 0.0
-    },
-    "Anthropic News": {
-      "total": 1,
-      "cross": 1,
-      "rate": 1.0
     }
   }
 }

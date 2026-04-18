@@ -1,0 +1,45 @@
+{
+  "date": "2026-04-19",
+  "sources": {
+    "AI타임스 - AI산업": {
+      "total": 11,
+      "cross": 5,
+      "rate": 0.455
+    },
+    "AI News & Artificial Intelligence | TechCrunch": {
+      "total": 5,
+      "cross": 4,
+      "rate": 0.8
+    },
+    "The Decoder": {
+      "total": 8,
+      "cross": 3,
+      "rate": 0.375
+    },
+    "Feed: Artificial Intelligence Latest": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "MarkTechPost": {
+      "total": 3,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "Simon Willison's Weblog": {
+      "total": 2,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "ITmedia AI＋ 最新記事一覧": {
+      "total": 2,
+      "cross": 1,
+      "rate": 0.5
+    },
+    "AI | The Verge": {
+      "total": 2,
+      "cross": 2,
+      "rate": 1.0
+    }
+  }
+}

@@ -219,17 +219,17 @@ SOURCE_WEIGHT = {
     "Anthropic News": 4,                                # 커뮤니티 피드 (taobojlen/anthropic-rss-feed)
     "NVIDIA Blog": 4,                                   # AI/로봇/GPU 공식
     "Microsoft Research": 4,                            # Copilot/Azure AI 연구
-    # Tier 1 — AI 기술 속보 + 권위 저널
+    # Tier 1 — AI 기술 속보 + 권위 저널 + 권위 종합지(Tech/AI 섹션)
     "AI News & Artificial Intelligence | TechCrunch": 3,
     "AI | The Verge": 3,
     "AI | VentureBeat": 3,
     "The Decoder": 3,
     "IEEE Spectrum": 3,                                  # 기술 학회지
     "Artificial intelligence – MIT Technology Review": 3,  # 권위 저널리즘
+    "AI (artificial intelligence) | The Guardian": 3,    # Guardian AI 전용 섹션
+    "NYT > Technology": 3,                               # NYT Technology 섹션 (AI 외 기사 섞임)
+    "BBC News": 3,                                       # BBC Technology 섹션 (피드 타이틀이 "BBC News")
     # Tier 2 — AI 전문 매체 + 실용지
-    "MarkTechPost": 2,
-    "DailyAI": 2,
-    "Synced": 2,
     "The Rundown AI": 2,
     "Latest stories for ZDNET in Artificial Intelligence": 2,
     "Simon Willison's Weblog": 2,                        # AI 해설 개인 블로그 (매일 업데이트)
@@ -240,6 +240,14 @@ SOURCE_WEIGHT = {
     "Feed: Artificial Intelligence Latest": 1,           # Wired
 }
 _DEFAULT_WEIGHT = 1
+
+# Tier 1 내에서 대표 기사 선정 시 우선권을 갖는 권위 종합지 집합.
+# 같은 사건을 여러 Tier 1 매체가 다룰 때 이 세 곳 기사를 대표로 채택.
+PREMIUM_TIER1_SOURCES = {
+    "AI (artificial intelligence) | The Guardian",
+    "NYT > Technology",
+    "BBC News",
+}
 
 RSS_FEEDS = [
     # Tier 0 — 공식 1차 소스 (공식 발표, 논문, 연구 블로그)
@@ -254,15 +262,15 @@ RSS_FEEDS = [
     "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml",
     "https://venturebeat.com/category/ai/feed/",
     "https://www.wired.com/feed/tag/ai/latest/rss",
+    "https://www.theguardian.com/technology/artificialintelligenceai/rss",      # Guardian AI (AI 전용 섹션)
     # AI 전문 매체 — 매일 다수 기사, 같은 사건 중복 보도
     "https://the-decoder.com/feed/",
-    "https://www.marktechpost.com/feed/",
-    "https://dailyai.com/feed/",
-    "https://syncedreview.com/feed/",
-    # 권위 있는 기술 저널
+    # 권위 있는 기술 저널 / 권위 종합지 Tech 섹션
     "https://spectrum.ieee.org/feeds/topic/artificial-intelligence.rss",        # IEEE Spectrum (AI)
     "https://www.technologyreview.com/topic/artificial-intelligence/feed/",     # MIT Technology Review (AI)
     "https://www.zdnet.com/topic/artificial-intelligence/news/rss.xml",         # ZDNet AI
+    "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",              # NYT Technology (AI 외 기사는 필터로 제거)
+    "https://feeds.bbci.co.uk/news/technology/rss.xml",                         # BBC Technology
     # AI 뉴스레터 — 주요 뉴스 큐레이션
     "https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml",                             # The Rundown AI
     # 개인 AI 해설 블로그
@@ -415,10 +423,14 @@ def cluster_articles(entries: list[dict], api_key: str) -> list[dict]:
     grouped = []
     for arts in clusters.values():
         sources = list({a["source"] for a in arts})
-        # 대표 기사: 매체 신뢰도가 가장 높은 기사, 동점이면 요약이 긴 기사
+        # 대표 기사: 신뢰도(Tier) → 프리미엄 Tier 1 매체(Guardian/NYT/BBC) 우선 → 요약 길이
         representative = max(
             arts,
-            key=lambda a: (SOURCE_WEIGHT.get(a["source"], _DEFAULT_WEIGHT), len(a["summary"])),
+            key=lambda a: (
+                SOURCE_WEIGHT.get(a["source"], _DEFAULT_WEIGHT),
+                a["source"] in PREMIUM_TIER1_SOURCES,
+                len(a["summary"]),
+            ),
         )
         # Tier 0 매체가 클러스터에 있으면 brand_key 설정 (가중치 순서로 첫 매치)
         brand_key = ""

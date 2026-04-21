@@ -127,9 +127,9 @@ python ai_briefing.py
 | The Decoder | AI 전문 | EN | Tier 1 |
 | IEEE Spectrum AI | 기술 학회지 | EN | Tier 1 |
 | MIT Technology Review AI | 권위 저널리즘 | EN | Tier 1 |
-| MarkTechPost | AI 전문 | EN | Tier 2 |
-| DailyAI | AI 전문 | EN | Tier 2 |
-| Synced Review | AI 전문 | EN | Tier 2 |
+| **The Guardian AI** | 권위 종합지 (AI 섹션) | EN | Tier 1 ⭐ |
+| **NYT Technology** | 권위 종합지 (Tech 섹션) | EN | Tier 1 ⭐ |
+| **BBC Technology** | 권위 종합지 (Tech 섹션) | EN | Tier 1 ⭐ |
 | The Rundown AI | AI 뉴스레터 | EN | Tier 2 |
 | ZDNet AI | AI 실용지 | EN | Tier 2 |
 | Simon Willison's Weblog | AI 해설 블로그 | EN | Tier 2 |
@@ -146,6 +146,15 @@ Tier 0(OpenAI/Google/Anthropic 등)가 단독으로 보도한 뉴스는 **다른
 1. Tier 0 매체 포함 여부
 2. 중복 매체 수
 3. 매체 신뢰도
+
+### 대표 기사 선정 — Tier 1 내 프리미엄 우선
+
+여러 매체가 같은 사건을 다룰 때, 어느 기사를 대표로 쓸지 결정하는 순서:
+1. **매체 신뢰도 점수 (Tier 0=4 > Tier 1=3 > Tier 2=2 > Tier 3=1)**
+2. **Tier 1 내 프리미엄 매체 (Guardian AI / NYT Tech / BBC Tech)** — 같은 Tier 1끼리 겹치면 이 세 곳 우선
+3. 요약(summary) 길이 — 모두 같으면 긴 요약 우선
+
+`signal_core.py`의 `PREMIUM_TIER1_SOURCES` 집합에서 관리.
 
 ## Troubleshooting
 

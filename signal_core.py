@@ -1193,18 +1193,18 @@ def update_source_weight(metrics_dir: str = "metrics", min_days: int = 7):
             totals[src] += vals.get("total", 0)
             crosses[src] += vals.get("cross", 0)
 
-    # 교차 보도율 기준으로 Tier 분류. Tier 0(공식 1차 소스)은 자동 갱신에서 제외.
+    # 교차 보도율 기준 자동 갱신. Tier 1 이상(수동 지정 권위 매체)은 건드리지 않는다.
+    # Tier 3 → Tier 2 승급만 허용. 자동 로직이 Tier 1로 올려버리는 일 없음.
     new_weights = {}
     for src in totals:
-        if SOURCE_WEIGHT.get(src, _DEFAULT_WEIGHT) >= TIER_0_WEIGHT:
-            continue  # Tier 0는 수동 유지
+        current = SOURCE_WEIGHT.get(src, _DEFAULT_WEIGHT)
+        if current >= 3:
+            continue  # Tier 0·Tier 1은 수동 유지, 자동 갱신 제외
         total = totals[src]
         cross = crosses[src]
         rate = cross / total if total > 0 else 0
-        if rate >= 0.25:
-            new_weights[src] = 3  # Tier 1: 기사의 25% 이상이 다른 매체도 보도
-        elif rate >= 0.10:
-            new_weights[src] = 2  # Tier 2: 10~25%
+        if rate >= 0.10:
+            new_weights[src] = 2  # Tier 2: 교차 보도율 10% 이상
         else:
             new_weights[src] = 1  # Tier 3: 10% 미만
 

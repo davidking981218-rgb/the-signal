@@ -28,8 +28,9 @@ GitHub Actions (매일 05:00 KST) → GitHub Pages 자동 배포
 
 - **Gemini 임베딩 기반 크로스링구얼 매칭** — 영어/한국어/일본어를 넘나들며 같은 사건을 묶음 (예: Sam Altman 관련 영 2곳 + 일 1곳 + 한 1곳 동시 매칭)
 - **Tier 0 공식 1차 소스** — OpenAI / Google Research / Google DeepMind / Anthropic / NVIDIA / Microsoft Research. 단독 보도라도 최상위로 올림
+- **Tier 1 권위지만 선별** — 학회지 IEEE Spectrum / MIT Technology Review + 권위 종합지 The Guardian AI · NYT Technology · BBC Technology (⭐ 프리미엄). TechCrunch·Verge·VentureBeat 같은 속보 매체는 Tier 2로 분리해 "진짜 권위지"의 신호를 희석하지 않음
 - **중복 보도 기반 중요도** — 여러 매체가 동시에 다룬 뉴스 = 중요한 뉴스
-- **매체 신뢰도 가중치** — Tier 0~3 계층. 같은 매체 수일 때 우선순위 결정
+- **매체 신뢰도 가중치** — 4단 계층 (Tier 0 공식 4점 > Tier 1 권위 3점 > Tier 2 전문·속보 2점 > Tier 3 기타 1점). 같은 매체 수일 때 우선순위 결정. Tier 1 내에서는 Guardian/NYT/BBC가 대표 기사 우선권
 - **AI 관련성 2단계 필터** — 영어 정규식 + 한국어/일본어 substring 리스트로 비-AI 기사 차단
 - **LLM 환각 방지** — AI는 요약·번역만, 팩트(URL/매체수/원문 제목)는 코드가 직접 덮어씀
 - **기사 파비콘 — Gemini 힌트 우선 + 형식 검증** — Gemini가 반환한 `company_domain`을 정규식으로 형식만 검증해 수용. 하드코딩 화이트리스트 없이 스탠포드/소프트뱅크 등 모든 기관 자동 커버. 실패 시 빅5 하드코딩 사전(`ENTITY_ALIASES`)이 백업

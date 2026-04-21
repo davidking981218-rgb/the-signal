@@ -219,17 +219,17 @@ SOURCE_WEIGHT = {
     "Anthropic News": 4,                                # 커뮤니티 피드 (taobojlen/anthropic-rss-feed)
     "NVIDIA Blog": 4,                                   # AI/로봇/GPU 공식
     "Microsoft Research": 4,                            # Copilot/Azure AI 연구
-    # Tier 1 — AI 기술 속보 + 권위 저널 + 권위 종합지(Tech/AI 섹션)
-    "AI News & Artificial Intelligence | TechCrunch": 3,
-    "AI | The Verge": 3,
-    "AI | VentureBeat": 3,
-    "The Decoder": 3,
-    "IEEE Spectrum": 3,                                  # 기술 학회지
-    "Artificial intelligence – MIT Technology Review": 3,  # 권위 저널리즘
+    # Tier 1 — 진짜 권위지 (학회지 + 권위 저널리즘 + 권위 종합지)
+    "IEEE Spectrum": 3,                                  # IEEE 학회 공식 매거진
+    "Artificial intelligence – MIT Technology Review": 3,  # MIT 운영 권위 저널리즘
     "AI (artificial intelligence) | The Guardian": 3,    # Guardian AI 전용 섹션
     "NYT > Technology": 3,                               # NYT Technology 섹션 (AI 외 기사 섞임)
     "BBC News": 3,                                       # BBC Technology 섹션 (피드 타이틀이 "BBC News")
-    # Tier 2 — AI 전문 매체 + 실용지
+    # Tier 2 — AI 속보 매체 + 전문지 + 실용지
+    "AI News & Artificial Intelligence | TechCrunch": 2,
+    "AI | The Verge": 2,
+    "AI | VentureBeat": 2,
+    "The Decoder": 2,
     "The Rundown AI": 2,
     "Latest stories for ZDNET in Artificial Intelligence": 2,
     "Simon Willison's Weblog": 2,                        # AI 해설 개인 블로그 (매일 업데이트)

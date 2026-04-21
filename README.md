@@ -121,15 +121,15 @@ python ai_briefing.py
 | Anthropic News (커뮤니티 피드) | 공식 1차 소스 | EN | **Tier 0** |
 | NVIDIA Blog | 공식 1차 소스 | EN | **Tier 0** |
 | Microsoft Research | 공식 1차 소스 | EN | **Tier 0** |
-| TechCrunch AI | 종합 테크 | EN | Tier 1 |
-| The Verge AI | 종합 테크 | EN | Tier 1 |
-| VentureBeat AI | 종합 테크 | EN | Tier 1 |
-| The Decoder | AI 전문 | EN | Tier 1 |
 | IEEE Spectrum AI | 기술 학회지 | EN | Tier 1 |
 | MIT Technology Review AI | 권위 저널리즘 | EN | Tier 1 |
 | **The Guardian AI** | 권위 종합지 (AI 섹션) | EN | Tier 1 ⭐ |
 | **NYT Technology** | 권위 종합지 (Tech 섹션) | EN | Tier 1 ⭐ |
 | **BBC Technology** | 권위 종합지 (Tech 섹션) | EN | Tier 1 ⭐ |
+| TechCrunch AI | 종합 테크 속보 | EN | Tier 2 |
+| The Verge AI | 종합 테크 | EN | Tier 2 |
+| VentureBeat AI | 종합 테크 | EN | Tier 2 |
+| The Decoder | AI 전문 | EN | Tier 2 |
 | The Rundown AI | AI 뉴스레터 | EN | Tier 2 |
 | ZDNet AI | AI 실용지 | EN | Tier 2 |
 | Simon Willison's Weblog | AI 해설 블로그 | EN | Tier 2 |

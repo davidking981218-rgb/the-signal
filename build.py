@@ -52,10 +52,12 @@ def main():
     for fav in ["favicon.png", "favicon-32.png", "favicon-180.png"]:
         if os.path.exists(fav):
             shutil.copy2(fav, f"public/{fav}")
+    # archive/ 전체(HTML + audio 하위 폴더)를 public/archive/로 복사
     if os.path.exists("archive"):
-        for f in os.listdir("archive"):
-            if f.endswith(".html"):
-                shutil.copy2(f"archive/{f}", f"public/archive/{f}")
+        if os.path.exists("public/archive"):
+            shutil.rmtree("public/archive")
+        shutil.copytree("archive", "public/archive")
+        os.makedirs("public/archive", exist_ok=True)
 
     if not GEMINI_API_KEY:
         print("✗ GEMINI_API_KEY 환경변수가 설정되지 않았습니다.")

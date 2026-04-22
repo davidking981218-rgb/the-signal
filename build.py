@@ -84,7 +84,15 @@ def main():
             raise RuntimeError("Gemini 큐레이션 결과가 비어있습니다.")
 
         tts_raw = generate_tts(articles)
+        # 오늘 메인 페이지용 오디오 (매일 덮어쓰기)
         tts_data = tts_to_files(tts_raw, "public/audio")
+        # archive 전용 오디오 — 날짜별 영구 보존 (public + archive 둘 다)
+        archive_audio_public = f"public/archive/audio/{today_str}"
+        archive_audio_git = f"archive/audio/{today_str}"
+        tts_to_files(tts_raw, archive_audio_public)
+        os.makedirs(archive_audio_git, exist_ok=True)
+        for f in os.listdir(archive_audio_public):
+            shutil.copy2(os.path.join(archive_audio_public, f), os.path.join(archive_audio_git, f))
         html = build_html(articles, archive_link="archive/", feed_status=feed_status, tts_data=tts_data)
 
     except Exception as e:
@@ -96,9 +104,9 @@ def main():
             f.write(build_archive_index("public/archive"))
         raise
 
-    # 아카이브용 HTML (archive_link + audio 경로 둘 다 상대 보정)
-    # archive HTML은 public/archive/ 아래 있으므로 audio 폴더가 ../audio/에 있음
-    archive_html = build_html(articles, archive_link="./", feed_status=feed_status, tts_data=tts_data, audio_prefix="../audio/")
+    # 아카이브용 HTML — 해당 날짜의 전용 audio 폴더를 가리키도록 audio_prefix 지정
+    # 결과: archive/2026-MM-DD.html 이 audio/2026-MM-DD/kr_0.mp3 를 참조 (과거 archive에서도 그날 오디오 영구 보존)
+    archive_html = build_html(articles, archive_link="./", feed_status=feed_status, tts_data=tts_data, audio_prefix=f"audio/{today_str}/")
 
     # 성공
     with open("public/index.html", "w", encoding="utf-8") as f:

@@ -1269,7 +1269,8 @@ def _pcm_to_mp3(pcm_bytes: bytes, sample_rate: int = 24000, channels: int = 1, b
     enc.set_in_sample_rate(sample_rate)
     enc.set_channels(channels)
     enc.set_quality(5)
-    return enc.encode(pcm_bytes) + enc.flush()
+    # lameenc는 bytearray를 반환. tts_to_files의 isinstance(val, bytes) 분기에 걸리도록 bytes로 변환.
+    return bytes(enc.encode(pcm_bytes) + enc.flush())
 
 
 def _gemini_tts_single(text: str, api_key: str) -> bytes | None:

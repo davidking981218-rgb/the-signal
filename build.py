@@ -48,16 +48,20 @@ def build_archive_index(archive_dir: str) -> str:
 def main():
     today_str = now_kst().strftime("%Y-%m-%d")
 
-    os.makedirs("public/archive", exist_ok=True)
-    for fav in ["favicon.png", "favicon-32.png", "favicon-180.png"]:
-        if os.path.exists(fav):
-            shutil.copy2(fav, f"public/{fav}")
-    # archive/ 전체(HTML + audio 하위 폴더)를 public/archive/로 복사
+    # 1. archive/ 전체(HTML + audio 하위 폴더)를 public/archive/로 복사
+    os.makedirs("public", exist_ok=True)
     if os.path.exists("archive"):
         if os.path.exists("public/archive"):
             shutil.rmtree("public/archive")
         shutil.copytree("archive", "public/archive")
-        os.makedirs("public/archive", exist_ok=True)
+    os.makedirs("public/archive", exist_ok=True)
+
+    # 2. favicon 복사 (archive copytree 이후에 해야 덮어쓰기 안 됨)
+    # archive HTML은 상대경로로 favicon을 참조하므로 public/archive/ 에도 복사 필요
+    for fav in ["favicon.png", "favicon-32.png", "favicon-180.png"]:
+        if os.path.exists(fav):
+            shutil.copy2(fav, f"public/{fav}")
+            shutil.copy2(fav, f"public/archive/{fav}")
 
     # 오늘 archive가 이미 완성된 상태면(수동 재트리거 시) 전체 빌드 건너뛰고 재배포만.
     # Gemini/TTS 호출 0건. 기존 오늘 결과(Charon 음성 포함)가 그대로 보존됨.

@@ -76,7 +76,7 @@ favicon*.png     ← 사이트 파비콘 (32/180/512px)
 ### 1. 의존성 설치
 
 ```bash
-pip install feedparser google-genai numpy edge-tts
+pip install feedparser google-genai numpy edge-tts lameenc
 ```
 
 ### 2. Gemini API 키 발급

@@ -700,7 +700,7 @@ def _format_published(date_tuple) -> str:
         return ""
 
 
-def build_html(articles: list[dict], archive_link: str = "", feed_status: dict = None, tts_data: dict = None) -> str:
+def build_html(articles: list[dict], archive_link: str = "", feed_status: dict = None, tts_data: dict = None, audio_prefix: str = "audio/") -> str:
     """뉴스 기사 목록을 다크 테마 HTML로 변환한다."""
     print("[4/4] HTML 생성 중...")
 
@@ -745,6 +745,8 @@ def build_html(articles: list[dict], archive_link: str = "", feed_status: dict =
             for lang in ["kr", "en", "jp"]:
                 src = tts_data.get(lang, [""] * len(articles))[i] if i < len(tts_data.get(lang, [])) else ""
                 if src:
+                    if src.startswith("audio/"):
+                        src = audio_prefix + src[len("audio/"):]
                     audio_tags += f'<audio class="tts-audio tts-{lang}" preload="none" src="{src}"></audio>'
         title_kr = escape(a.get("title_kr", ""))
         title_en = escape(a.get("title_en", ""))
@@ -784,6 +786,8 @@ def build_html(articles: list[dict], archive_link: str = "", feed_status: dict =
         for lang in ["kr", "en", "jp"]:
             src = tts_data.get(f"{lang}_all", "")
             if src:
+                if src.startswith("audio/"):
+                    src = audio_prefix + src[len("audio/"):]
                 tts_all_audio += f'<audio id="tts-all-{lang}" preload="none" src="{src}"></audio>\n'
 
     html = f"""<!DOCTYPE html>
@@ -1257,6 +1261,17 @@ def _detect_audio_fmt(data: bytes) -> str:
     return "mp3"
 
 
+def _pcm_to_mp3(pcm_bytes: bytes, sample_rate: int = 24000, channels: int = 1, bitrate: int = 64) -> bytes:
+    """raw PCM (signed 16-bit LE) 바이트를 MP3로 인코딩 (lameenc 사용). 브라우저 호환성·용량 최적화."""
+    import lameenc
+    enc = lameenc.Encoder()
+    enc.set_bit_rate(bitrate)
+    enc.set_in_sample_rate(sample_rate)
+    enc.set_channels(channels)
+    enc.set_quality(5)
+    return enc.encode(pcm_bytes) + enc.flush()
+
+
 def _gemini_tts_single(text: str, api_key: str) -> bytes | None:
     """Gemini TTS로 wav 바이트를 생성한다. 실패하면 None."""
     try:
@@ -1276,13 +1291,9 @@ def _gemini_tts_single(text: str, api_key: str) -> bytes | None:
             ),
         )
         pcm = resp.candidates[0].content.parts[0].inline_data.data
-        buf = BytesIO()
-        with _wave.open(buf, "wb") as wf:
-            wf.setnchannels(1)
-            wf.setsampwidth(2)
-            wf.setframerate(24000)
-            wf.writeframes(pcm)
-        return buf.getvalue()
+        # raw PCM (24kHz 16-bit mono)를 바로 MP3로 인코딩 (WAV 래핑 생략).
+        # MP3는 모든 모던 브라우저/모바일에서 확실히 재생됨.
+        return _pcm_to_mp3(pcm, sample_rate=24000, channels=1, bitrate=64)
     except Exception as e:
         print(f"   ⚠ Gemini TTS 실패: {e}")
         return None

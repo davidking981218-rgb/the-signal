@@ -96,8 +96,9 @@ def main():
             f.write(build_archive_index("public/archive"))
         raise
 
-    # 아카이브용 HTML (archive_link를 상대경로 보정)
-    archive_html = build_html(articles, archive_link="./", feed_status=feed_status, tts_data=tts_data)
+    # 아카이브용 HTML (archive_link + audio 경로 둘 다 상대 보정)
+    # archive HTML은 public/archive/ 아래 있으므로 audio 폴더가 ../audio/에 있음
+    archive_html = build_html(articles, archive_link="./", feed_status=feed_status, tts_data=tts_data, audio_prefix="../audio/")
 
     # 성공
     with open("public/index.html", "w", encoding="utf-8") as f:

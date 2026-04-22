@@ -59,6 +59,31 @@ def main():
         shutil.copytree("archive", "public/archive")
         os.makedirs("public/archive", exist_ok=True)
 
+    # 오늘 archive가 이미 완성된 상태면(수동 재트리거 시) 전체 빌드 건너뛰고 재배포만.
+    # Gemini/TTS 호출 0건. 기존 오늘 결과(Charon 음성 포함)가 그대로 보존됨.
+    today_archive_html_path = f"archive/{today_str}.html"
+    today_archive_audio_dir = f"archive/audio/{today_str}"
+    if (os.path.exists(today_archive_html_path)
+            and os.path.isdir(today_archive_audio_dir)
+            and len(os.listdir(today_archive_audio_dir)) >= 18):
+        print(f"✓ 오늘 archive 이미 완성 — 빌드 건너뛰고 재배포만 수행")
+        # archive HTML을 메인 index.html로 변환 (audio 경로 + archive_link 치환)
+        with open(today_archive_html_path, encoding="utf-8") as f:
+            html = f.read()
+        html = html.replace(f'src="audio/{today_str}/', 'src="audio/')
+        html = html.replace('href="./" class="archive-link"', 'href="archive/" class="archive-link"')
+        with open("public/index.html", "w", encoding="utf-8") as f:
+            f.write(html)
+        # 메인 페이지용 오디오 복사 (public/audio/)
+        os.makedirs("public/audio", exist_ok=True)
+        for f in os.listdir(today_archive_audio_dir):
+            shutil.copy2(os.path.join(today_archive_audio_dir, f), os.path.join("public/audio", f))
+        # archive 인덱스
+        with open("public/archive/index.html", "w", encoding="utf-8") as f:
+            f.write(build_archive_index("public/archive"))
+        print("✓ 배포 준비 완료 (Gemini/TTS 호출 0건)")
+        return
+
     if not GEMINI_API_KEY:
         print("✗ GEMINI_API_KEY 환경변수가 설정되지 않았습니다.")
         html = build_error_html("GEMINI_API_KEY가 설정되지 않았습니다.")
@@ -85,16 +110,34 @@ def main():
         if not articles:
             raise RuntimeError("Gemini 큐레이션 결과가 비어있습니다.")
 
-        tts_raw = generate_tts(articles)
-        # 오늘 메인 페이지용 오디오 (매일 덮어쓰기)
-        tts_data = tts_to_files(tts_raw, "public/audio")
-        # archive 전용 오디오 — 날짜별 영구 보존 (public + archive 둘 다)
-        archive_audio_public = f"public/archive/audio/{today_str}"
+        # 오늘 archive/audio/가 이미 있으면(동일한 날 재빌드) TTS 재호출 없이 기존 파일 재사용.
+        # quota 절약 + 기존 Charon 음성을 Edge 폴백으로 덮어쓰지 않음.
         archive_audio_git = f"archive/audio/{today_str}"
-        tts_to_files(tts_raw, archive_audio_public)
-        os.makedirs(archive_audio_git, exist_ok=True)
-        for f in os.listdir(archive_audio_public):
-            shutil.copy2(os.path.join(archive_audio_public, f), os.path.join(archive_audio_git, f))
+        archive_audio_public = f"public/archive/audio/{today_str}"
+        if os.path.isdir(archive_audio_git) and len(os.listdir(archive_audio_git)) >= 18:
+            print(f"[TTS] archive/audio/{today_str}/ 이미 존재 — TTS 재호출 건너뜀, 기존 오디오 재사용")
+            os.makedirs("public/audio", exist_ok=True)
+            os.makedirs(archive_audio_public, exist_ok=True)
+            tts_data = {"kr": [""] * len(articles), "en": [""] * len(articles), "jp": [""] * len(articles)}
+            for f in os.listdir(archive_audio_git):
+                src_path = os.path.join(archive_audio_git, f)
+                shutil.copy2(src_path, os.path.join("public/audio", f))
+                shutil.copy2(src_path, os.path.join(archive_audio_public, f))
+                # tts_data 재구성
+                name = os.path.splitext(f)[0]
+                if name.endswith("_all"):
+                    tts_data[name] = f"audio/{f}"
+                else:
+                    lang, idx = name.rsplit("_", 1)
+                    if lang in tts_data and idx.isdigit():
+                        tts_data[lang][int(idx)] = f"audio/{f}"
+        else:
+            tts_raw = generate_tts(articles)
+            tts_data = tts_to_files(tts_raw, "public/audio")
+            tts_to_files(tts_raw, archive_audio_public)
+            os.makedirs(archive_audio_git, exist_ok=True)
+            for f in os.listdir(archive_audio_public):
+                shutil.copy2(os.path.join(archive_audio_public, f), os.path.join(archive_audio_git, f))
         html = build_html(articles, archive_link="archive/", feed_status=feed_status, tts_data=tts_data)
 
     except Exception as e:

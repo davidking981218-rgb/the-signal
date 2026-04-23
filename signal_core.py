@@ -211,6 +211,31 @@ BRAND_FAVICON_DOMAIN = {
     "nvidia": "nvidia.com",
     "microsoft": "microsoft.com",
 }
+
+# 공식 Tier 0 도메인 → brand_key. URL 기반이라 매체명 매핑(SOURCE_BRAND)보다 정확.
+_OFFICIAL_DOMAINS = (
+    ("openai.com", "openai"),
+    ("research.google", "google"),
+    ("deepmind.google", "google"),
+    ("blog.google", "google"),
+    ("nvidia.com", "nvidia"),
+    ("microsoft.com", "microsoft"),
+    ("anthropic.com", "anthropic"),
+)
+
+
+def _brand_from_link(link: str) -> str:
+    """대표 기사 URL의 도메인이 Tier 0 공식 도메인이면 brand_key 반환, 아니면 빈 문자열."""
+    if not link:
+        return ""
+    from urllib.parse import urlparse
+    netloc = urlparse(link).netloc.lower()
+    if netloc.startswith("www."):
+        netloc = netloc[4:]
+    for official, key in _OFFICIAL_DOMAINS:
+        if netloc == official or netloc.endswith("." + official):
+            return key
+    return ""
 SOURCE_WEIGHT = {
     # Tier 0 — 공식 1차 소스 (단독 보도라도 무조건 최상위)
     "OpenAI News": 4,
@@ -432,15 +457,10 @@ def cluster_articles(entries: list[dict], api_key: str) -> list[dict]:
                 len(a["summary"]),
             ),
         )
-        # Tier 0 매체가 클러스터에 있으면 brand_key 설정 (가중치 순서로 첫 매치)
-        brand_key = ""
-        tier0_sources = sorted(
-            (s for s in sources if s in SOURCE_BRAND),
-            key=lambda s: SOURCE_WEIGHT.get(s, 0),
-            reverse=True,
-        )
-        if tier0_sources:
-            brand_key = SOURCE_BRAND[tier0_sources[0]]
+        # brand_key는 대표 기사의 URL 도메인 기준으로 결정.
+        # 클러스터에 Tier 0 피드 기사가 "섞여있다"는 이유만으로 강제하지 않음
+        # (임베딩 오분류 대응). 대표 기사가 실제 공식 도메인에서 왔을 때만 강제.
+        brand_key = _brand_from_link(representative.get("link", ""))
         grouped.append({
             "title": representative["title"],
             "summary": representative["summary"],

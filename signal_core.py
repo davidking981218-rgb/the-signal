@@ -28,7 +28,7 @@ EMBEDDING_MODEL = "gemini-embedding-001"
 SIMILARITY_THRESHOLD = 0.85   # 임베딩 코사인 유사도 기준 (의미 기반, 다국어 호환). 0.80은 과묶음
 EMBEDDING_BATCH_SIZE = 100    # 배치당 텍스트 수 (요청당 20K 토큰 제한 안전 마진)
 EMBEDDING_BATCH_SLEEP = 20    # 배치 사이 대기 (초) — RPM/TPM 여유 확보
-GEMINI_MAX_RETRIES = 3
+GEMINI_MAX_RETRIES = 5
 KST = timezone(timedelta(hours=9))
 
 # Edge TTS 음성 (Gemini 실패 시 폴백용)
@@ -691,9 +691,12 @@ def curate_with_gemini(clustered: list[dict], api_key: str) -> list[dict]:
             time.sleep(2)
 
         except Exception as e:
-            wait = 10 * (2 ** attempt)  # 10/20/40초 — 503 일시 과부하 대응
-            print(f"   ⚠ 시도 {attempt+1}/{GEMINI_MAX_RETRIES} 실패: {e} ({wait}초 후 재시도)")
-            time.sleep(wait)
+            if attempt < GEMINI_MAX_RETRIES - 1:
+                wait = [30, 90, 180, 360][attempt]  # 503 스파이크가 분 단위로 지속되는 경우 대응 (총 ~11분)
+                print(f"   ⚠ 시도 {attempt+1}/{GEMINI_MAX_RETRIES} 실패: {e} ({wait}초 후 재시도)")
+                time.sleep(wait)
+            else:
+                print(f"   ⚠ 시도 {attempt+1}/{GEMINI_MAX_RETRIES} 실패: {e}")
 
     if not verified:
         raise RuntimeError(f"Gemini {GEMINI_MAX_RETRIES}회 시도 후에도 검증 통과 뉴스 없음")

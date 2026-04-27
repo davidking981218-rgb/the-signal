@@ -1,0 +1,90 @@
+{
+  "date": "2026-04-28",
+  "sources": {
+    "AI | The Verge": {
+      "total": 5,
+      "cross": 2,
+      "rate": 0.4
+    },
+    "AI (artificial intelligence) | The Guardian": {
+      "total": 8,
+      "cross": 2,
+      "rate": 0.25
+    },
+    "NYT > Technology": {
+      "total": 6,
+      "cross": 3,
+      "rate": 0.5
+    },
+    "Feed: Artificial Intelligence Latest": {
+      "total": 2,
+      "cross": 2,
+      "rate": 1.0
+    },
+    "ITmedia AI＋ 最新記事一覧": {
+      "total": 13,
+      "cross": 1,
+      "rate": 0.077
+    },
+    "Latest stories for ZDNET in Artificial Intelligence": {
+      "total": 2,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "AI타임스 - AI산업": {
+      "total": 18,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "Simon Willison's Weblog": {
+      "total": 2,
+      "cross": 1,
+      "rate": 0.5
+    },
+    "AI News & Artificial Intelligence | TechCrunch": {
+      "total": 6,
+      "cross": 5,
+      "rate": 0.833
+    },
+    "AI타임스 - AI기술": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "Artificial intelligence – MIT Technology Review": {
+      "total": 2,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "IEEE Spectrum": {
+      "total": 3,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "The Decoder": {
+      "total": 6,
+      "cross": 5,
+      "rate": 0.833
+    },
+    "BBC News": {
+      "total": 1,
+      "cross": 1,
+      "rate": 1.0
+    },
+    "The Rundown AI": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "Google DeepMind News": {
+      "total": 1,
+      "cross": 1,
+      "rate": 1.0
+    },
+    "OpenAI News": {
+      "total": 3,
+      "cross": 1,
+      "rate": 0.333
+    }
+  }
+}

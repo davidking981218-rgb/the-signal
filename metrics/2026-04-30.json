@@ -1,0 +1,70 @@
+{
+  "date": "2026-04-30",
+  "sources": {
+    "Feed: Artificial Intelligence Latest": {
+      "total": 7,
+      "cross": 3,
+      "rate": 0.429
+    },
+    "NYT > Technology": {
+      "total": 12,
+      "cross": 2,
+      "rate": 0.167
+    },
+    "AI (artificial intelligence) | The Guardian": {
+      "total": 6,
+      "cross": 2,
+      "rate": 0.333
+    },
+    "AI | The Verge": {
+      "total": 8,
+      "cross": 3,
+      "rate": 0.375
+    },
+    "AI타임스 - AI산업": {
+      "total": 20,
+      "cross": 3,
+      "rate": 0.15
+    },
+    "Simon Willison's Weblog": {
+      "total": 2,
+      "cross": 1,
+      "rate": 0.5
+    },
+    "AI News & Artificial Intelligence | TechCrunch": {
+      "total": 8,
+      "cross": 2,
+      "rate": 0.25
+    },
+    "The Decoder": {
+      "total": 8,
+      "cross": 3,
+      "rate": 0.375
+    },
+    "AI타임스 - AI기술": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "BBC News": {
+      "total": 2,
+      "cross": 2,
+      "rate": 1.0
+    },
+    "The Rundown AI": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "OpenAI News": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "ITmedia AI＋ 最新記事一覧": {
+      "total": 4,
+      "cross": 2,
+      "rate": 0.5
+    }
+  }
+}

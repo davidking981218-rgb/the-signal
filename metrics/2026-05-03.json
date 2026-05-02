@@ -1,0 +1,40 @@
+{
+  "date": "2026-05-03",
+  "sources": {
+    "AI타임스 - AI산업": {
+      "total": 10,
+      "cross": 2,
+      "rate": 0.2
+    },
+    "AI (artificial intelligence) | The Guardian": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "Simon Willison's Weblog": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "AI News & Artificial Intelligence | TechCrunch": {
+      "total": 3,
+      "cross": 1,
+      "rate": 0.333
+    },
+    "NYT > Technology": {
+      "total": 2,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "The Decoder": {
+      "total": 7,
+      "cross": 2,
+      "rate": 0.286
+    },
+    "BBC News": {
+      "total": 3,
+      "cross": 0,
+      "rate": 0.0
+    }
+  }
+}

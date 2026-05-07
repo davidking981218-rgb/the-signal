@@ -1,0 +1,80 @@
+{
+  "date": "2026-05-08",
+  "sources": {
+    "Feed: Artificial Intelligence Latest": {
+      "total": 5,
+      "cross": 2,
+      "rate": 0.4
+    },
+    "AI News & Artificial Intelligence | TechCrunch": {
+      "total": 16,
+      "cross": 4,
+      "rate": 0.25
+    },
+    "Simon Willison's Weblog": {
+      "total": 5,
+      "cross": 2,
+      "rate": 0.4
+    },
+    "AI | The Verge": {
+      "total": 9,
+      "cross": 6,
+      "rate": 0.667
+    },
+    "NVIDIA Blog": {
+      "total": 2,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "AI타임스 - AI산업": {
+      "total": 20,
+      "cross": 5,
+      "rate": 0.25
+    },
+    "The Decoder": {
+      "total": 8,
+      "cross": 3,
+      "rate": 0.375
+    },
+    "NYT > Technology": {
+      "total": 5,
+      "cross": 3,
+      "rate": 0.6
+    },
+    "AI (artificial intelligence) | The Guardian": {
+      "total": 5,
+      "cross": 1,
+      "rate": 0.2
+    },
+    "ITmedia AI＋ 最新記事一覧": {
+      "total": 13,
+      "cross": 2,
+      "rate": 0.154
+    },
+    "BBC News": {
+      "total": 2,
+      "cross": 1,
+      "rate": 0.5
+    },
+    "AI타임스 - AI기술": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "IEEE Spectrum": {
+      "total": 2,
+      "cross": 1,
+      "rate": 0.5
+    },
+    "OpenAI News": {
+      "total": 4,
+      "cross": 2,
+      "rate": 0.5
+    },
+    "The Rundown AI": {
+      "total": 1,
+      "cross": 1,
+      "rate": 1.0
+    }
+  }
+}

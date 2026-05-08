@@ -1,0 +1,65 @@
+{
+  "date": "2026-05-09",
+  "sources": {
+    "AI News & Artificial Intelligence | TechCrunch": {
+      "total": 7,
+      "cross": 3,
+      "rate": 0.429
+    },
+    "Microsoft Research": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "AI타임스 - AI산업": {
+      "total": 19,
+      "cross": 6,
+      "rate": 0.316
+    },
+    "AI | The Verge": {
+      "total": 5,
+      "cross": 2,
+      "rate": 0.4
+    },
+    "The Decoder": {
+      "total": 6,
+      "cross": 3,
+      "rate": 0.5
+    },
+    "AI (artificial intelligence) | The Guardian": {
+      "total": 5,
+      "cross": 1,
+      "rate": 0.2
+    },
+    "Feed: Artificial Intelligence Latest": {
+      "total": 5,
+      "cross": 1,
+      "rate": 0.2
+    },
+    "NYT > Technology": {
+      "total": 4,
+      "cross": 1,
+      "rate": 0.25
+    },
+    "OpenAI News": {
+      "total": 1,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "BBC News": {
+      "total": 3,
+      "cross": 0,
+      "rate": 0.0
+    },
+    "The Rundown AI": {
+      "total": 1,
+      "cross": 1,
+      "rate": 1.0
+    },
+    "ITmedia AI＋ 最新記事一覧": {
+      "total": 13,
+      "cross": 5,
+      "rate": 0.385
+    }
+  }
+}

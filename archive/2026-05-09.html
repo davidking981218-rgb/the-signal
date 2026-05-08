@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE SIGNAL — AI Daily Briefing</title>
+<meta name="description" content="AI 뉴스 데일리 브리핑 — 22개 글로벌 매체에서 수집한 오늘의 AI 뉴스">
+<meta property="og:title" content="THE SIGNAL — 2026-05-09">
+<meta property="og:description" content="메타, AI 도입으로 직원들 고통. 메타는 AI 시대로 전환하면서 7만 8천 명의 직원들에게 AI 기술 사용을 강요하고 있으며, 일부 직원에 대한 해고를 준비 중이다. 이는 AI 적응 과정에서 발생하는 기업 내부의 변화와 갈등을 보여준다.">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d0d12; color:#e0e0e0; font-family:'Noto Sans KR',sans-serif; font-weight:600; min-height:100vh; }
+  #aurora { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+  .masthead { text-align:center; padding:48px 20px 28px; border-bottom:1px solid #1a1a2e; position:relative; z-index:1; }
+  .masthead-rule { width:60px; height:2px; background:linear-gradient(90deg,#6366f1,#a78bfa); margin:0 auto 18px; }
+  .masthead h1 { font-size:42px; font-weight:700; letter-spacing:6px; text-transform:uppercase; color:#f0f0f0; margin-bottom:8px; }
+  .masthead .date { font-family:'DM Mono',monospace; font-size:13px; color:#777; letter-spacing:1px; font-weight:500; }
+  .masthead .edition { font-family:'DM Mono',monospace; font-size:11px; color:#666; font-weight:500; margin-top:4px; }
+  .masthead .subtitle { font-size:12px; color:#555; margin-top:10px; font-weight:400; }
+  .archive-link { font-family:'DM Mono',monospace; font-size:11px; color:#6366f1; text-decoration:none; margin-top:8px; display:inline-block; }
+  .archive-link:hover { color:#a78bfa; }
+
+  /* ── 언어 전환 (헤더) ── */
+  .lang-switch { display:flex; justify-content:center; gap:4px; margin-top:14px; }
+  .ls-btn { font-family:'DM Mono',monospace; font-size:12px; padding:5px 14px; border:1px solid #333; border-radius:4px; background:transparent; color:#555; cursor:pointer; transition:all .15s; font-weight:600; }
+  .ls-btn:hover,.ls-btn:focus { color:#999; border-color:#555; outline:none; }
+  .ls-btn.active { color:#c4b5fd; border-color:#6366f180; background:#6366f115; }
+
+  .container { max-width:680px; margin:0 auto; padding:28px 20px 60px; display:flex; flex-direction:column; gap:16px; position:relative; z-index:1; }
+
+  /* ── 카드 ── */
+  .card { background:#12121c; border:1px solid #1e1e30; border-radius:12px; padding:24px; animation:fadeUp .5s ease both; transition:border-color .2s; }
+  .card:hover { border-color:#6366f130; }
+  .card:focus { outline:2px solid #6366f1; outline-offset:2px; }
+  .card.now-playing { border-color:#6366f1; box-shadow:0 0 20px #6366f120; }
+  .card-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+
+  /* ── Tier 0 공식 매체 브랜드 컬러 ── */
+  /* 상단 액센트 바(4px) + 은은한 배경 방사 글로우, 카드 기본 스타일 위에 덮어씀 */
+  .card.official { position:relative; overflow:hidden; }
+  .card.official::before {
+    content:""; position:absolute; top:0; left:0; right:0; height:4px;
+    background:var(--brand-bar, #6366f1); z-index:2;
+  }
+  .card.official::after {
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:var(--brand-glow, radial-gradient(ellipse at top right, #6366f118, transparent 70%));
+    z-index:0;
+  }
+  .card.official > * { position:relative; z-index:1; }
+  /* OpenAI — 민트 그린 #10a37f */
+  .card.brand-openai { --brand-bar:#10a37f; --brand-glow:radial-gradient(ellipse at top right,#10a37f22,transparent 70%); border-color:#10a37f40; }
+  .card.brand-openai:hover { border-color:#10a37f80; }
+  /* Anthropic — Claude 주황 #cc785c */
+  .card.brand-anthropic { --brand-bar:#cc785c; --brand-glow:radial-gradient(ellipse at top right,#cc785c22,transparent 70%); border-color:#cc785c40; }
+  .card.brand-anthropic:hover { border-color:#cc785c80; }
+  /* Google/DeepMind — Gemini 4색 그라데이션 */
+  .card.brand-google { --brand-bar:linear-gradient(90deg,#4285f4 0%,#ea4335 33%,#fbbc04 66%,#34a853 100%); --brand-glow:radial-gradient(ellipse at top right,#4285f420,transparent 70%); border-color:#4285f440; }
+  .card.brand-google:hover { border-color:#4285f480; }
+  .card.brand-google::before { background:linear-gradient(90deg,#4285f4 0%,#ea4335 33%,#fbbc04 66%,#34a853 100%); }
+  /* NVIDIA — 시그니처 그린 #76b900 */
+  .card.brand-nvidia { --brand-bar:#76b900; --brand-glow:radial-gradient(ellipse at top right,#76b90022,transparent 70%); border-color:#76b90040; }
+  .card.brand-nvidia:hover { border-color:#76b90080; }
+  /* Microsoft — Azure 블루 #0078d4 */
+  .card.brand-microsoft { --brand-bar:#0078d4; --brand-glow:radial-gradient(ellipse at top right,#0078d422,transparent 70%); border-color:#0078d440; }
+  .card.brand-microsoft:hover { border-color:#0078d480; }
+
+  /* ── 1번 뉴스 강조 ── */
+  .card.featured { padding:28px; border-color:#6366f130; background:linear-gradient(160deg,#12121c 0%,#14142a 100%); }
+  .card.featured .card-title { font-size:24px; }
+  .card.featured .badge { background:#6366f120; border-color:#6366f160; }
+  .card.featured .num { color:#6366f1; font-size:15px; }
+
+  .num { font-family:'DM Mono',monospace; font-size:13px; color:#6366f180; font-weight:700; }
+  .badge { font-size:12px; color:#c4b5fd; padding:4px 12px; border:1px solid #a78bfa40; border-radius:20px; font-weight:600; background:#a78bfa15; }
+  .sources { font-family:'DM Mono',monospace; font-size:11px; color:#777; font-weight:700; margin-left:auto; }
+
+  .company-icon { width:24px; height:24px; vertical-align:middle; margin-right:8px; border-radius:4px; opacity:.9; }
+  .card-title { font-size:20px; font-weight:700; line-height:1.4; margin-bottom:12px; color:#f0f0f0; }
+  .card-summary { font-size:14px; line-height:1.8; color:#bbb; margin-bottom:16px; font-weight:500; }
+
+  .card-why { background:#16162a; border-left:2px solid #6366f1; padding:12px 16px; border-radius:0 8px 8px 0; margin-bottom:16px; }
+  .why-label { font-family:'DM Mono',monospace; font-size:10px; color:#6366f1; letter-spacing:1.5px; display:block; margin-bottom:4px; font-weight:700; }
+  .why-text { font-size:13px; color:#aaa; line-height:1.6; font-weight:600; }
+
+  /* ── 카드 하단 액션 행 ── */
+  .card-actions { display:flex; align-items:center; gap:12px; }
+  .card-play { width:34px; height:34px; border-radius:50%; border:1px solid #6366f140; background:transparent; color:#6366f1; cursor:pointer; font-size:13px; transition:all .15s; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .card-play:hover,.card-play:focus { background:#6366f120; border-color:#6366f180; color:#a78bfa; outline:none; }
+  .card-source { font-family:'DM Mono',monospace; font-size:11px; color:#6366f1; text-decoration:none; padding:8px 16px; border:1px solid #6366f140; border-radius:6px; transition:all .15s; font-weight:600; }
+  .card-source:hover,.card-source:focus { background:#6366f115; border-color:#6366f180; color:#a78bfa; outline:none; }
+  .card-time { font-family:'DM Mono',monospace; font-size:10px; color:#555; font-weight:500; margin-left:auto; }
+
+  /* ── 하단 플레이어 바 (재생 시에만 표시) ── */
+  .player { position:fixed; bottom:0; left:0; right:0; z-index:100; background:#0d0d12; border-top:1px solid #1e1e30; padding:12px 0 16px; transform:translateY(100%); transition:transform .3s ease; }
+  .player.active { transform:translateY(0); }
+  .player-inner { max-width:680px; margin:0 auto; padding:0 24px; display:flex; align-items:center; gap:16px; }
+  .player-info { flex:1; min-width:0; }
+  .player-title { font-size:14px; color:#e0e0e0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .player-sub { font-size:12px; color:#555; font-weight:600; margin-top:2px; }
+  .player-controls { display:flex; align-items:center; gap:20px; }
+  .p-btn { border:none; background:transparent; color:#888; cursor:pointer; font-size:20px; padding:4px; transition:color .15s; font-weight:700; }
+  .p-btn:hover,.p-btn:focus { color:#e0e0e0; outline:none; }
+  .p-btn.main { color:#e0e0e0; font-size:26px; font-weight:700; }
+  .p-btn.main:hover,.p-btn.main:focus { color:#fff; }
+  .player-progress { position:absolute; top:0; left:0; right:0; height:2px; background:#1a1a2e; }
+  .player-progress-bar { height:100%; background:#6366f1; width:0%; transition:width .3s; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── 모바일 반응형 ── */
+  @media (max-width: 600px) {
+    .masthead { padding:28px 16px 20px; }
+    .masthead h1 { font-size:26px; letter-spacing:4px; }
+    .masthead .date { font-size:11px; }
+    .masthead .subtitle { font-size:11px; }
+    .lang-switch { margin-top:10px; }
+    .ls-btn { font-size:11px; padding:4px 10px; }
+    .container { padding:14px 12px 50px; gap:12px; }
+    .card { padding:16px; }
+    .card.featured { padding:18px; }
+    .card.featured .card-title { font-size:18px; }
+    .card-title { font-size:15px; }
+    .card-summary { font-size:13px; line-height:1.7; }
+    .card-head { gap:6px; }
+    .badge { font-size:10px; padding:3px 8px; }
+    .sources { font-size:10px; }
+    .why-text { font-size:12px; }
+    .card-actions { gap:8px; }
+    .card-play { width:30px; height:30px; font-size:11px; }
+    .card-source { font-size:10px; padding:6px 12px; }
+    .player-inner { padding:0 12px; gap:10px; }
+    .player-title { font-size:12px; }
+    .player-controls { gap:16px; }
+    .p-btn { font-size:18px; }
+    .p-btn.main { font-size:22px; }
+    .player { padding:10px 0 14px; }
+  }
+</style>
+</head>
+<body>
+  <header class="masthead" role="banner">
+    <div class="masthead-rule"></div>
+    <h1>The Signal</h1>
+    <div class="date">2026. 05. 09. Saturday</div>
+    <div class="edition">AI Daily Briefing — 5 stories from 22 sources</div>
+    <div class="subtitle">
+      <span class="lang kr">22개 글로벌 AI 매체의 중복 보도를 분석해 오늘의 핵심 뉴스만 선별합니다</span>
+      <span class="lang en" style="display:none">Curated from 22 global AI sources — ranked by cross-coverage frequency</span>
+      <span class="lang jp" style="display:none">22のグローバルAIメディアの重複報道を分析し、今日の重要ニュースを厳選</span>
+    </div>
+    <div class="lang-switch" role="group" aria-label="언어 선택">
+      <button class="ls-btn active" onclick="setLang('kr')" aria-label="한국어">KR</button>
+      <button class="ls-btn" onclick="setLang('en')" aria-label="English">EN</button>
+      <button class="ls-btn" onclick="setLang('jp')" aria-label="日本語">JP</button>
+    </div>
+    <a href="./" class="archive-link">Past Briefings →</a>
+  </header>
+  <main class="container" role="main">
+        <article class="card featured" style="animation-delay:0.0s" tabindex="0" role="article" aria-label="메타, AI 도입으로 직원들 고통">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/2026-05-09/kr_0.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/2026-05-09/en_0.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/2026-05-09/jp_0.mp3"></audio>
+          <div class="card-head">
+            <span class="num">01</span>
+            <span class="badge"><span class="lang kr">기업동향</span><span class="lang en" style="display:none">Industry</span><span class="lang jp" style="display:none">企業動向</span></span>
+            <span class="sources"><span class="lang kr">4개 매체 보도</span><span class="lang en" style="display:none">Covered by 4 sources</span><span class="lang jp" style="display:none">4社が報道</span></span>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=meta.com&amp;sz=64" alt=""><span class="lang kr">메타, AI 도입으로 직원들 고통</span><span class="lang en" style="display:none">Meta&#x27;s AI Adoption Woes</span><span class="lang jp" style="display:none">メタ、AI導入で従業員が苦痛</span></h2>
+          <p class="card-summary"><span class="lang kr">메타는 AI 시대로 전환하면서 7만 8천 명의 직원들에게 AI 기술 사용을 강요하고 있으며, 일부 직원에 대한 해고를 준비 중이다. 이는 AI 적응 과정에서 발생하는 기업 내부의 변화와 갈등을 보여준다.</span><span class="lang en" style="display:none">As Meta adapts to the AI era, the company is pushing its 78,000 workers to use AI technology and preparing for layoffs. This reflects internal changes and conflicts within the company during its AI transition.</span><span class="lang jp" style="display:none">メタはAI時代への適応に伴い、7万8千人の従業員にAI技術の使用を強制しており、一部の従業員の解雇を準備している。これはAI適応過程で生じる企業内部の変化と葛藤を示している。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">거대 AI 기업인 메타가 AI 전환 과정에서 겪는 내부 진통과 직원에 미치는 영향을 보여주는 중요한 사례이다.</span><span class="lang en" style="display:none">This is an important case showing the internal difficulties and impact on employees faced by a major AI company like Meta during its AI transition.</span><span class="lang jp" style="display:none">これは、巨大AI企業であるMetaがAIへの転換過程で直面する内部の苦痛と従業員への影響を示す重要な事例である。</span></span>
+          </div>
+          <div class="card-actions">
+            <button class="card-play" onclick="playIdx(0)" aria-label="재생">▶</button>
+            <a href="https://www.nytimes.com/2026/05/08/technology/meta-ai-employees-miserable.html" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">05/08 23:18</time>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.12s" tabindex="0" role="article" aria-label="OpenAI, 실시간 음성 AI API 공개">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/2026-05-09/kr_1.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/2026-05-09/en_1.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/2026-05-09/jp_1.mp3"></audio>
+          <div class="card-head">
+            <span class="num">02</span>
+            <span class="badge"><span class="lang kr">LLM</span><span class="lang en" style="display:none">LLM</span><span class="lang jp" style="display:none">LLM</span></span>
+            <span class="sources"><span class="lang kr">4개 매체 보도</span><span class="lang en" style="display:none">Covered by 4 sources</span><span class="lang jp" style="display:none">4社が報道</span></span>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=openai.com&amp;sz=64" alt=""><span class="lang kr">OpenAI, 실시간 음성 AI API 공개</span><span class="lang en" style="display:none">OpenAI Releases Real-time Voice AI APIs</span><span class="lang jp" style="display:none">OpenAI、リアルタイム音声AI API公開</span></h2>
+          <p class="card-summary"><span class="lang kr">오픈AI가 실시간 대화 중 추론, 번역, 전사 및 작업 수행이 가능한 차세대 음성 AI 모델 &#x27;GPT-리얼타임&#x27; 3종을 개발자 API로 공개했다. 이는 단순 음성 인식을 넘어 실제 업무를 수행하는 음성 에이전트 개발을 목표로 한다. 개발자들은 이 API를 활용하여 다양한 음성 애플리케이션을 제작할 수 있다.</span><span class="lang en" style="display:none">OpenAI has released three next-generation speech AI models, &#x27;GPT-Realtime,&#x27; via API for developers, capable of real-time inference, translation, transcription, and task execution during conversations. The goal is to develop speech agents that perform actual tasks beyond simple speech recognition. Developers can use these APIs to create various speech applications.</span><span class="lang jp" style="display:none">OpenAIは、リアルタイムの会話中に推論、翻訳、文字起こし、タスク実行が可能な次世代音声AIモデル「GPT-リアルタイム」3種を開発者向けAPIとして公開した。これは、単なる音声認識を超えて実際の業務を遂行する音声エージェントの開発を目指している。開発者はこのAPIを活用して、様々な音声アプリケーションを制作できる。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">오픈AI가 실시간 음성 에이전트 시장을 겨냥해 핵심 AI 모델을 API로 공개하며 음성 인터페이스의 새로운 가능성을 제시한다.</span><span class="lang en" style="display:none">OpenAI is targeting the real-time speech agent market by releasing key AI models as APIs, suggesting new possibilities for voice interfaces.</span><span class="lang jp" style="display:none">OpenAIはリアルタイム音声エージェント市場を狙い、主要なAIモデルをAPIとして公開し、音声インターフェースの新たな可能性を提示している。</span></span>
+          </div>
+          <div class="card-actions">
+            <button class="card-play" onclick="playIdx(1)" aria-label="재생">▶</button>
+            <a href="https://www.aitimes.com/news/articleView.html?idxno=210234" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">05/08 23:57</time>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.24s" tabindex="0" role="article" aria-label="파이어폭스, AI로 보안 버그 수정">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/2026-05-09/kr_2.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/2026-05-09/en_2.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/2026-05-09/jp_2.mp3"></audio>
+          <div class="card-head">
+            <span class="num">03</span>
+            <span class="badge"><span class="lang kr">LLM</span><span class="lang en" style="display:none">LLM</span><span class="lang jp" style="display:none">LLM</span></span>
+            <span class="sources"><span class="lang kr">3개 매체 보도</span><span class="lang en" style="display:none">Covered by 3 sources</span><span class="lang jp" style="display:none">3社が報道</span></span>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=anthropic.com&amp;sz=64" alt=""><span class="lang kr">파이어폭스, AI로 보안 버그 수정</span><span class="lang en" style="display:none">Firefox Fixes Bugs with AI</span><span class="lang jp" style="display:none">Firefox、AIでセキュリティバグ修正</span></h2>
+          <p class="card-summary"><span class="lang kr">모질라 파이어폭스 개발팀은 앤트로픽의 AI 모델 &#x27;클로드 미소스&#x27;를 활용하여 대규모 보안 취약점 271개를 발견하고 수정했다. 이 AI는 10~15년 이상 잠복해 있던 고위험 버그까지 찾아냈으며, 최신 AI 모델과 에이전트형 분석 시스템이 보안 버그 발견에 큰 진전을 가져왔음을 보여준다.</span><span class="lang en" style="display:none">The Mozilla Firefox development team used Anthropic&#x27;s AI model &#x27;Claude Mythos&#x27; to discover and fix 271 security vulnerabilities. This AI even found high-risk bugs that had been dormant for 10-15 years, demonstrating significant progress in security bug detection with the latest AI models and agentic analysis systems.</span><span class="lang jp" style="display:none">Mozilla Firefox開発チームは、AnthropicのAIモデル「Claude Mythos」を活用し、大規模なセキュリティ脆弱性271件を発見・修正した。このAIは10～15年以上潜伏していた高リスクバグまで発見し、最新のAIモデルとエージェント型分析システムがセキュリティバグの発見に大きな進歩をもたらしたことを示している。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">AI 모델이 소프트웨어 보안 취약점 탐지 및 수정에 실제적이고 효과적으로 활용될 수 있음을 증명하며 AI의 응용 분야를 확장한다.</span><span class="lang en" style="display:none">This proves that AI models can be effectively used for detecting and fixing software security vulnerabilities, expanding the application areas of AI.</span><span class="lang jp" style="display:none">AIモデルがソフトウェアのセキュリティ脆弱性検出と修正に実際に効果的に活用できることを証明し、AIの応用分野を拡大する。</span></span>
+          </div>
+          <div class="card-actions">
+            <button class="card-play" onclick="playIdx(2)" aria-label="재생">▶</button>
+            <a href="https://www.aitimes.com/news/articleView.html?idxno=210268" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">05/09 04:01</time>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.36s" tabindex="0" role="article" aria-label="OpenAI, 사이버 보안 AI 모델 공개">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/2026-05-09/kr_3.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/2026-05-09/en_3.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/2026-05-09/jp_3.mp3"></audio>
+          <div class="card-head">
+            <span class="num">04</span>
+            <span class="badge"><span class="lang kr">LLM</span><span class="lang en" style="display:none">LLM</span><span class="lang jp" style="display:none">LLM</span></span>
+            <span class="sources"><span class="lang kr">2개 매체 보도</span><span class="lang en" style="display:none">Covered by 2 sources</span><span class="lang jp" style="display:none">2社が報道</span></span>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=openai.com&amp;sz=64" alt=""><span class="lang kr">OpenAI, 사이버 보안 AI 모델 공개</span><span class="lang en" style="display:none">OpenAI Unveils Cybersecurity AI Model</span><span class="lang jp" style="display:none">OpenAI、サイバーセキュリティAI公開</span></h2>
+          <p class="card-summary"><span class="lang kr">오픈AI가 사이버 보안에 특화된 신규 AI 모델 &#x27;GPT-5.5-사이버&#x27;를 제한된 프리뷰 형태로 공개했다. 이 모델은 핵심 인프라를 보호하는 보안 담당자와 방어 조직을 대상으로, 취약점 분석, 침투 테스트, 악성코드 분석 등 고도화된 사이버 보안 업무를 지원한다. 이는 앤트로픽의 &#x27;클로드 미소스&#x27;에 대응하는 전략으로 보인다.</span><span class="lang en" style="display:none">OpenAI has released a new AI model, &#x27;GPT-5.5-Cyber,&#x27; specialized in cybersecurity, in a limited preview. This model supports advanced cybersecurity tasks like vulnerability analysis, penetration testing, and malware analysis for security professionals and defense organizations protecting critical infrastructure. This move appears to be a response to Anthropic&#x27;s &#x27;Claude Mythos.&#x27;</span><span class="lang jp" style="display:none">OpenAIは、サイバーセキュリティに特化した新しいAIモデル「GPT-5.5-サイバー」を限定プレビュー形式で公開した。このモデルは、主要インフラを保護するセキュリティ担当者や防御組織を対象に、脆弱性分析、侵入テスト、マルウェア分析などの高度なサイバーセキュリティ業務を支援する。これはAnthropicの「Claude Mythos」に対抗する戦略と見られる。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">오픈AI가 사이버 보안 분야에 특화된 AI 모델을 출시하여 산업별 맞춤형 LLM 개발 경쟁이 심화되고 있음을 보여준다.</span><span class="lang en" style="display:none">OpenAI&#x27;s release of an AI model specialized in cybersecurity shows the intensifying competition in developing industry-specific LLMs.</span><span class="lang jp" style="display:none">OpenAIがサイバーセキュリティ分野に特化したAIモデルをリリースしたことで、業界別特化型LLM開発競争が激化していることが示される。</span></span>
+          </div>
+          <div class="card-actions">
+            <button class="card-play" onclick="playIdx(3)" aria-label="재생">▶</button>
+            <a href="https://www.aitimes.com/news/articleView.html?idxno=210280" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">05/09 03:26</time>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.48s" tabindex="0" role="article" aria-label="AI 기업 투자 활발: 딥시크, 코어 오토메이션">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/2026-05-09/kr_4.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/2026-05-09/en_4.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/2026-05-09/jp_4.mp3"></audio>
+          <div class="card-head">
+            <span class="num">05</span>
+            <span class="badge"><span class="lang kr">기업동향</span><span class="lang en" style="display:none">Industry</span><span class="lang jp" style="display:none">企業動向</span></span>
+            <span class="sources"><span class="lang kr">2개 매체 보도</span><span class="lang en" style="display:none">Covered by 2 sources</span><span class="lang jp" style="display:none">2社が報道</span></span>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=deepseek.com&amp;sz=64" alt=""><span class="lang kr">AI 기업 투자 활발: 딥시크, 코어 오토메이션</span><span class="lang en" style="display:none">AI Investment Surges: Deepseek, Core Automation</span><span class="lang jp" style="display:none">AI企業投資活況: Deepseek、Core Automation</span></h2>
+          <p class="card-summary"><span class="lang kr">중국 AI 기업 딥시크(Deepseek)가 최대 73억 5천만 달러 규모의 자금 조달을 계획하며 사상 최대 규모의 투자를 유치할 예정이다. 또한, 전 OpenAI 연구원이 설립한 코어 오토메이션(Core Automation)은 설립 6주 만에 40억 달러의 기업 가치를 목표로 하고 있다.</span><span class="lang en" style="display:none">Chinese AI company Deepseek plans to raise up to $7.35 billion, making it the largest funding round ever for a Chinese AI firm. Meanwhile, Core Automation, founded by an ex-OpenAI researcher just six weeks ago, is already targeting a $4 billion valuation.</span><span class="lang jp" style="display:none">中国のAI企業Deepseekは、最大73億5千万ドルの資金調達を計画しており、中国のAI企業としては過去最大規模となる見込みだ。また、元OpenAIの研究者によってわずか6週間前に設立されたCore Automationは、すでに40億ドルの企業評価額を目指している。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">주요 AI 기업들이 대규모 투자를 유치하고 높은 기업 가치를 인정받으며 AI 산업의 뜨거운 성장세를 보여준다.</span><span class="lang en" style="display:none">Leading AI companies are attracting significant investments and achieving high valuations, demonstrating the rapid growth of the AI industry.</span><span class="lang jp" style="display:none">主要AI企業が大規模な投資を誘致し、高い企業価値を評価されることで、AI産業の目覚ましい成長を示している。</span></span>
+          </div>
+          <div class="card-actions">
+            <button class="card-play" onclick="playIdx(4)" aria-label="재생">▶</button>
+            <a href="https://the-decoder.com/ai-money-keeps-flowing-as-deepseek-plans-record-raise-and-core-automation-quadruples-valuation-in-weeks/" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">05/09 02:50</time>
+          </div>
+        </article></main>
+<audio id="tts-all-kr" preload="none" src="audio/2026-05-09/kr_all.mp3"></audio>
+<audio id="tts-all-en" preload="none" src="audio/2026-05-09/en_all.mp3"></audio>
+<audio id="tts-all-jp" preload="none" src="audio/2026-05-09/jp_all.mp3"></audio>
+
+
+  <nav class="player" id="player" role="region" aria-label="오디오 플레이어">
+    <div class="player-progress"><div class="player-progress-bar" id="pbar"></div></div>
+    <div class="player-inner">
+      <div class="player-info">
+        <div class="player-title" id="ptitle" aria-live="polite">재생 대기 중</div>
+        <div class="player-sub" id="psub"></div>
+      </div>
+      <div class="player-controls">
+        <button class="p-btn" onclick="prevTrack()" aria-label="이전 뉴스">⏮</button>
+        <button class="p-btn main" id="pbtn" onclick="togglePlay()" aria-label="재생">▶</button>
+        <button class="p-btn" onclick="nextTrack()" aria-label="다음 뉴스">⏭</button>
+      </div>
+    </div>
+  </nav>
+
+<canvas id="aurora" aria-hidden="true"></canvas>
+<script>
+(function(){
+  const c=document.getElementById('aurora'),x=c.getContext('2d');
+  let w,h;
+  function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; }
+  resize(); addEventListener('resize',resize);
+  const blobs=[
+    {x:.2,y:.25,r:300,dx:.0003,dy:.0002,color:[99,102,241]},
+    {x:.75,y:.55,r:250,dx:-.0004,dy:.0003,color:[167,139,250]},
+    {x:.5,y:.8,r:200,dx:.0002,dy:-.0003,color:[99,102,241]},
+  ];
+  let t=0;
+  function draw(){
+    x.clearRect(0,0,w,h);
+    t+=.005;
+    blobs.forEach(b=>{
+      const bx=(b.x+Math.sin(t*2+b.dx*1000)*.08)*w;
+      const by=(b.y+Math.cos(t*1.5+b.dy*1000)*.06)*h;
+      const r=b.r+Math.sin(t*3)*.15*b.r;
+      const g=x.createRadialGradient(bx,by,0,bx,by,r);
+      g.addColorStop(0,`rgba(${b.color.join(',')},0.12)`);
+      g.addColorStop(1,'transparent');
+      x.fillStyle=g;
+      x.fillRect(0,0,w,h);
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── 플레이어 ──
+let curLang='kr';
+let curIdx=0;
+let isPlaying=false;
+let curAudio=null;
+const cards=document.querySelectorAll('.card');
+const player=document.getElementById('player');
+const pbtn=document.getElementById('pbtn');
+const ptitle=document.getElementById('ptitle');
+const psub=document.getElementById('psub');
+const pbar=document.getElementById('pbar');
+
+function getTitle(i){
+  const card=cards[i];
+  if(!card) return '';
+  const el=card.querySelector('.card-title .lang.'+curLang);
+  return el?el.textContent:'';
+}
+
+function showPlayer(){ player.classList.add('active'); }
+function hidePlayer(){ player.classList.remove('active'); }
+
+function highlight(i){
+  cards.forEach(c=>c.classList.remove('now-playing'));
+  if(cards[i]) cards[i].classList.add('now-playing');
+  ptitle.textContent=getTitle(i)||'재생 대기 중';
+  psub.textContent=`${i+1} / ${cards.length}`;
+  pbar.style.width=`${((i+1)/cards.length)*100}%`;
+  if(cards[i]) cards[i].scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function playIdx(i){
+  if(curAudio){ curAudio.pause(); curAudio.currentTime=0; }
+  curIdx=i;
+  const card=cards[i];
+  if(!card){ stop(); return; }
+  const audio=card.querySelector('.tts-audio.tts-'+curLang);
+  if(!audio){ nextTrack(); return; }
+  curAudio=audio;
+  showPlayer();
+  highlight(i);
+  isPlaying=true;
+  pbtn.textContent='⏸';
+  pbtn.setAttribute('aria-label','일시정지');
+  audio.onended=()=>nextTrack();
+  audio.play();
+}
+
+function togglePlay(){
+  if(isPlaying && curAudio){
+    curAudio.pause();
+    isPlaying=false;
+    pbtn.textContent='▶';
+    pbtn.setAttribute('aria-label','재생');
+  } else if(!isPlaying && curAudio && curAudio.currentTime>0){
+    curAudio.play();
+    isPlaying=true;
+    pbtn.textContent='⏸';
+    pbtn.setAttribute('aria-label','일시정지');
+  } else {
+    playIdx(curIdx);
+  }
+}
+
+function nextTrack(){
+  if(curIdx<cards.length-1) playIdx(curIdx+1);
+  else stop();
+}
+
+function prevTrack(){
+  if(curAudio && curAudio.currentTime>3){ curAudio.currentTime=0; return; }
+  if(curIdx>0) playIdx(curIdx-1);
+}
+
+function stop(){
+  if(curAudio){ curAudio.pause(); curAudio.currentTime=0; curAudio=null; }
+  isPlaying=false;
+  pbtn.textContent='▶';
+  pbtn.setAttribute('aria-label','재생');
+  cards.forEach(c=>c.classList.remove('now-playing'));
+  ptitle.textContent='재생 완료';
+  psub.textContent='';
+  pbar.style.width='100%';
+  curIdx=0;
+  setTimeout(hidePlayer,2000);
+}
+
+function setLang(lang){
+  const wasPlaying=isPlaying;
+  if(curAudio){ curAudio.pause(); curAudio.currentTime=0; }
+  curLang=lang;
+  document.querySelectorAll('.lang').forEach(el=>{
+    el.style.display=el.classList.contains(lang)?'inline':'none';
+  });
+  document.querySelectorAll('.ls-btn').forEach(btn=>{
+    btn.classList.toggle('active',btn.textContent.toLowerCase()===lang);
+  });
+  if(isPlaying) playIdx(curIdx);
+}
+
+// 키보드 네비게이션: Space → 재생/일시정지, 좌우 화살표 → 이전/다음
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if(e.code==='Space'){ e.preventDefault(); togglePlay(); }
+  else if(e.code==='ArrowRight'){ nextTrack(); }
+  else if(e.code==='ArrowLeft'){ prevTrack(); }
+});
+</script>
+</body>
+</html>

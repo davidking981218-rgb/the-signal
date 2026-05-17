@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE SIGNAL — AI Daily Briefing</title>
+<meta name="description" content="AI 뉴스 데일리 브리핑 — 22개 글로벌 매체에서 수집한 오늘의 AI 뉴스">
+<meta property="og:title" content="THE SIGNAL — 2026-05-18">
+<meta property="og:description" content="시리, 자동 삭제 채팅 도입. 애플은 AI 분야에서 개인정보 보호 기록을 차별점으로 내세우며, 경쟁에 뒤처진 부분을 만회하려 한다. iOS 27에 탑재될 챗봇 형태의 시리는 자동 삭제 채팅 기능을 포함할 예정이다.">
+<meta property="og:type" content="article">
+<meta property="og:locale" content="ko_KR">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="favicon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d0d12; color:#e0e0e0; font-family:'Noto Sans KR',sans-serif; font-weight:600; min-height:100vh; }
+  #aurora { position:fixed; inset:0; z-index:0; pointer-events:none; }
+
+  .masthead { text-align:center; padding:48px 20px 28px; border-bottom:1px solid #1a1a2e; position:relative; z-index:1; }
+  .masthead-rule { width:60px; height:2px; background:linear-gradient(90deg,#6366f1,#a78bfa); margin:0 auto 18px; }
+  .masthead h1 { font-size:42px; font-weight:700; letter-spacing:6px; text-transform:uppercase; color:#f0f0f0; margin-bottom:8px; }
+  .masthead .date { font-family:'DM Mono',monospace; font-size:13px; color:#777; letter-spacing:1px; font-weight:500; }
+  .masthead .edition { font-family:'DM Mono',monospace; font-size:11px; color:#666; font-weight:500; margin-top:4px; }
+  .masthead .subtitle { font-size:12px; color:#555; margin-top:10px; font-weight:400; }
+  .archive-link { font-family:'DM Mono',monospace; font-size:11px; color:#6366f1; text-decoration:none; margin-top:8px; display:inline-block; }
+  .archive-link:hover { color:#a78bfa; }
+
+  /* ── 언어 전환 (헤더) ── */
+  .lang-switch { display:flex; justify-content:center; gap:4px; margin-top:14px; }
+  .ls-btn { font-family:'DM Mono',monospace; font-size:12px; padding:5px 14px; border:1px solid #333; border-radius:4px; background:transparent; color:#555; cursor:pointer; transition:all .15s; font-weight:600; }
+  .ls-btn:hover,.ls-btn:focus { color:#999; border-color:#555; outline:none; }
+  .ls-btn.active { color:#c4b5fd; border-color:#6366f180; background:#6366f115; }
+
+  .container { max-width:680px; margin:0 auto; padding:28px 20px 60px; display:flex; flex-direction:column; gap:16px; position:relative; z-index:1; }
+
+  /* ── 카드 ── */
+  .card { background:#12121c; border:1px solid #1e1e30; border-radius:12px; padding:24px; animation:fadeUp .5s ease both; transition:border-color .2s; }
+  .card:hover { border-color:#6366f130; }
+  .card:focus { outline:2px solid #6366f1; outline-offset:2px; }
+  .card.now-playing { border-color:#6366f1; box-shadow:0 0 20px #6366f120; }
+  .card-head { display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+
+  /* ── Tier 0 공식 매체 브랜드 컬러 ── */
+  /* 상단 액센트 바(4px) + 은은한 배경 방사 글로우, 카드 기본 스타일 위에 덮어씀 */
+  .card.official { position:relative; overflow:hidden; }
+  .card.official::before {
+    content:""; position:absolute; top:0; left:0; right:0; height:4px;
+    background:var(--brand-bar, #6366f1); z-index:2;
+  }
+  .card.official::after {
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:var(--brand-glow, radial-gradient(ellipse at top right, #6366f118, transparent 70%));
+    z-index:0;
+  }
+  .card.official > * { position:relative; z-index:1; }
+  /* OpenAI — 민트 그린 #10a37f */
+  .card.brand-openai { --brand-bar:#10a37f; --brand-glow:radial-gradient(ellipse at top right,#10a37f22,transparent 70%); border-color:#10a37f40; }
+  .card.brand-openai:hover { border-color:#10a37f80; }
+  /* Anthropic — Claude 주황 #cc785c */
+  .card.brand-anthropic { --brand-bar:#cc785c; --brand-glow:radial-gradient(ellipse at top right,#cc785c22,transparent 70%); border-color:#cc785c40; }
+  .card.brand-anthropic:hover { border-color:#cc785c80; }
+  /* Google/DeepMind — Gemini 4색 그라데이션 */
+  .card.brand-google { --brand-bar:linear-gradient(90deg,#4285f4 0%,#ea4335 33%,#fbbc04 66%,#34a853 100%); --brand-glow:radial-gradient(ellipse at top right,#4285f420,transparent 70%); border-color:#4285f440; }
+  .card.brand-google:hover { border-color:#4285f480; }
+  .card.brand-google::before { background:linear-gradient(90deg,#4285f4 0%,#ea4335 33%,#fbbc04 66%,#34a853 100%); }
+  /* NVIDIA — 시그니처 그린 #76b900 */
+  .card.brand-nvidia { --brand-bar:#76b900; --brand-glow:radial-gradient(ellipse at top right,#76b90022,transparent 70%); border-color:#76b90040; }
+  .card.brand-nvidia:hover { border-color:#76b90080; }
+  /* Microsoft — Azure 블루 #0078d4 */
+  .card.brand-microsoft { --brand-bar:#0078d4; --brand-glow:radial-gradient(ellipse at top right,#0078d422,transparent 70%); border-color:#0078d440; }
+  .card.brand-microsoft:hover { border-color:#0078d480; }
+
+  /* ── 1번 뉴스 강조 ── */
+  .card.featured { padding:28px; border-color:#6366f130; background:linear-gradient(160deg,#12121c 0%,#14142a 100%); }
+  .card.featured .card-title { font-size:24px; }
+  .card.featured .badge { background:#6366f120; border-color:#6366f160; }
+  .card.featured .num { color:#6366f1; font-size:15px; }
+
+  .num { font-family:'DM Mono',monospace; font-size:13px; color:#6366f180; font-weight:700; }
+  .badge { font-size:12px; color:#c4b5fd; padding:4px 12px; border:1px solid #a78bfa40; border-radius:20px; font-weight:600; background:#a78bfa15; }
+  .sources { font-family:'DM Mono',monospace; font-size:11px; color:#777; font-weight:700; margin-left:auto; }
+
+  .company-icon { width:24px; height:24px; vertical-align:middle; margin-right:8px; border-radius:4px; opacity:.9; }
+  .card-title { font-size:20px; font-weight:700; line-height:1.4; margin-bottom:12px; color:#f0f0f0; }
+  .card-summary { font-size:14px; line-height:1.8; color:#bbb; margin-bottom:16px; font-weight:500; }
+
+  .card-why { background:#16162a; border-left:2px solid #6366f1; padding:12px 16px; border-radius:0 8px 8px 0; margin-bottom:16px; }
+  .why-label { font-family:'DM Mono',monospace; font-size:10px; color:#6366f1; letter-spacing:1.5px; display:block; margin-bottom:4px; font-weight:700; }
+  .why-text { font-size:13px; color:#aaa; line-height:1.6; font-weight:600; }
+
+  /* ── 카드 하단 액션 행 ── */
+  .card-actions { display:flex; align-items:center; gap:12px; }
+  .card-play { width:34px; height:34px; border-radius:50%; border:1px solid #6366f140; background:transparent; color:#6366f1; cursor:pointer; font-size:13px; transition:all .15s; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .card-play:hover,.card-play:focus { background:#6366f120; border-color:#6366f180; color:#a78bfa; outline:none; }
+  .card-source { font-family:'DM Mono',monospace; font-size:11px; color:#6366f1; text-decoration:none; padding:8px 16px; border:1px solid #6366f140; border-radius:6px; transition:all .15s; font-weight:600; }
+  .card-source:hover,.card-source:focus { background:#6366f115; border-color:#6366f180; color:#a78bfa; outline:none; }
+  .card-time { font-family:'DM Mono',monospace; font-size:10px; color:#555; font-weight:500; margin-left:auto; }
+
+  /* ── 하단 플레이어 바 (재생 시에만 표시) ── */
+  .player { position:fixed; bottom:0; left:0; right:0; z-index:100; background:#0d0d12; border-top:1px solid #1e1e30; padding:12px 0 16px; transform:translateY(100%); transition:transform .3s ease; }
+  .player.active { transform:translateY(0); }
+  .player-inner { max-width:680px; margin:0 auto; padding:0 24px; display:flex; align-items:center; gap:16px; }
+  .player-info { flex:1; min-width:0; }
+  .player-title { font-size:14px; color:#e0e0e0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .player-sub { font-size:12px; color:#555; font-weight:600; margin-top:2px; }
+  .player-controls { display:flex; align-items:center; gap:20px; }
+  .p-btn { border:none; background:transparent; color:#888; cursor:pointer; font-size:20px; padding:4px; transition:color .15s; font-weight:700; }
+  .p-btn:hover,.p-btn:focus { color:#e0e0e0; outline:none; }
+  .p-btn.main { color:#e0e0e0; font-size:26px; font-weight:700; }
+  .p-btn.main:hover,.p-btn.main:focus { color:#fff; }
+  .player-progress { position:absolute; top:0; left:0; right:0; height:2px; background:#1a1a2e; }
+  .player-progress-bar { height:100%; background:#6366f1; width:0%; transition:width .3s; }
+
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+  /* ── 모바일 반응형 ── */
+  @media (max-width: 600px) {
+    .masthead { padding:28px 16px 20px; }
+    .masthead h1 { font-size:26px; letter-spacing:4px; }
+    .masthead .date { font-size:11px; }
+    .masthead .subtitle { font-size:11px; }
+    .lang-switch { margin-top:10px; }
+    .ls-btn { font-size:11px; padding:4px 10px; }
+    .container { padding:14px 12px 50px; gap:12px; }
+    .card { padding:16px; }
+    .card.featured { padding:18px; }
+    .card.featured .card-title { font-size:18px; }
+    .card-title { font-size:15px; }
+    .card-summary { font-size:13px; line-height:1.7; }
+    .card-head { gap:6px; }
+    .badge { font-size:10px; padding:3px 8px; }
+    .sources { font-size:10px; }
+    .why-text { font-size:12px; }
+    .card-actions { gap:8px; }
+    .card-play { width:30px; height:30px; font-size:11px; }
+    .card-source { font-size:10px; padding:6px 12px; }
+    .player-inner { padding:0 12px; gap:10px; }
+    .player-title { font-size:12px; }
+    .player-controls { gap:16px; }
+    .p-btn { font-size:18px; }
+    .p-btn.main { font-size:22px; }
+    .player { padding:10px 0 14px; }
+  }
+</style>
+</head>
+<body>
+  <header class="masthead" role="banner">
+    <div class="masthead-rule"></div>
+    <h1>The Signal</h1>
+    <div class="date">2026. 05. 18. Monday</div>
+    <div class="edition">AI Daily Briefing — 4 stories from 22 sources</div>
+    <div class="subtitle">
+      <span class="lang kr">22개 글로벌 AI 매체의 중복 보도를 분석해 오늘의 핵심 뉴스만 선별합니다</span>
+      <span class="lang en" style="display:none">Curated from 22 global AI sources — ranked by cross-coverage frequency</span>
+      <span class="lang jp" style="display:none">22のグローバルAIメディアの重複報道を分析し、今日の重要ニュースを厳選</span>
+    </div>
+    <div class="lang-switch" role="group" aria-label="언어 선택">
+      <button class="ls-btn active" onclick="setLang('kr')" aria-label="한국어">KR</button>
+      <button class="ls-btn" onclick="setLang('en')" aria-label="English">EN</button>
+      <button class="ls-btn" onclick="setLang('jp')" aria-label="日本語">JP</button>
+    </div>
+    <a href="./" class="archive-link">Past Briefings →</a>
+  </header>
+  <main class="container" role="main">
+        <article class="card featured" style="animation-delay:0.0s" tabindex="0" role="article" aria-label="시리, 자동 삭제 채팅 도입">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/2026-05-18/kr_0.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/2026-05-18/en_0.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/2026-05-18/jp_0.mp3"></audio>
+          <div class="card-head">
+            <span class="num">01</span>
+            <span class="badge"><span class="lang kr">LLM</span><span class="lang en" style="display:none">LLM</span><span class="lang jp" style="display:none">LLM</span></span>
+            <span class="sources"><span class="lang kr">2개 매체 보도</span><span class="lang en" style="display:none">Covered by 2 sources</span><span class="lang jp" style="display:none">2社が報道</span></span>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=apple.com&amp;sz=64" alt=""><span class="lang kr">시리, 자동 삭제 채팅 도입</span><span class="lang en" style="display:none">Siri to offer auto-deleting chats</span><span class="lang jp" style="display:none">Siri、チャット自動削除機能導入へ</span></h2>
+          <p class="card-summary"><span class="lang kr">애플은 AI 분야에서 개인정보 보호 기록을 차별점으로 내세우며, 경쟁에 뒤처진 부분을 만회하려 한다. iOS 27에 탑재될 챗봇 형태의 시리는 자동 삭제 채팅 기능을 포함할 예정이다.</span><span class="lang en" style="display:none">Apple aims to use its privacy record as a differentiator in AI, hoping to gain an advantage despite lagging competitors. The chatbot-like Siri, set to launch in iOS 27, will reportedly feature an auto-delete chat option.</span><span class="lang jp" style="display:none">AppleはAI分野でプライバシー保護の実績を差別化要素とし、競争に遅れを取る現状を挽回しようとしている。iOS 27で登場するチャットボット型Siriには、チャット自動削除機能が搭載される見込みだ。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">애플이 AI 경쟁에서 개인정보 보호를 핵심 차별점으로 내세우며 시리에 챗봇 기능을 강화하는 동향은 중요한 의미를 지닌다.</span><span class="lang en" style="display:none">Apple&#x27;s strategy to leverage privacy as a key differentiator in the AI race by enhancing Siri with chatbot features is significant.</span><span class="lang jp" style="display:none">AppleがAI競争においてプライバシー保護を主要な差別化要素とし、Siriにチャットボット機能を強化する動向は重要である。</span></span>
+          </div>
+          <div class="card-actions">
+            <button class="card-play" onclick="playIdx(0)" aria-label="재생">▶</button>
+            <a href="https://www.theverge.com/tech/932207/siri-apple-intelligence-auto-deleting-chats" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">05/18 03:40</time>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.12s" tabindex="0" role="article" aria-label="AI 라디오 DJ 실험 결과">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/2026-05-18/kr_1.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/2026-05-18/en_1.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/2026-05-18/jp_1.mp3"></audio>
+          <div class="card-head">
+            <span class="num">02</span>
+            <span class="badge"><span class="lang kr">LLM</span><span class="lang en" style="display:none">LLM</span><span class="lang jp" style="display:none">LLM</span></span>
+            <span class="sources"><span class="lang kr">2개 매체 보도</span><span class="lang en" style="display:none">Covered by 2 sources</span><span class="lang jp" style="display:none">2社が報道</span></span>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=openai.com&amp;sz=64" alt=""><span class="lang kr">AI 라디오 DJ 실험 결과</span><span class="lang en" style="display:none">AI Radio DJ Experiment Results</span><span class="lang jp" style="display:none">AIラジオDJ実験の結果</span></h2>
+          <p class="card-summary"><span class="lang kr">첨단 AI 모델들에게 라디오 방송국 운영을 맡긴 실험 결과, 각 모델의 개성이 달랐으며 일부는 어려움을 겪었다. 앤돈 랩스는 오픈AI, 앤트로픽, 구글, xAI의 AI 모델을 활용한 이 실험의 결과를 공개했다.</span><span class="lang en" style="display:none">An experiment assigning advanced AI models to run a radio station revealed distinct personalities among models, with some encountering difficulties. Andon Labs published the results of this experiment, utilizing AI models from OpenAI, Anthropic, Google, and xAI.</span><span class="lang jp" style="display:none">最先端AIモデルにラジオ局運営を任せる実験が行われ、各モデルの個性が異なり、一部は困難に直面したことが判明した。Andon Labsは、OpenAI、Anthropic、Google、xAIのAIモデルを活用したこの実験結果を公開した。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">여러 AI 모델의 실제 적용 능력을 비교하고 개성을 파악한 실험으로, LLM의 발전 양상과 적용 가능성을 보여준다.</span><span class="lang en" style="display:none">This experiment, comparing the practical application capabilities and personalities of various AI models, demonstrates the evolving landscape and potential applications of LLMs.</span><span class="lang jp" style="display:none">複数のAIモデルの実用能力と個性を比較したこの実験は、LLMの進化と応用可能性を示すものである。</span></span>
+          </div>
+          <div class="card-actions">
+            <button class="card-play" onclick="playIdx(1)" aria-label="재생">▶</button>
+            <a href="https://www.aitimes.com/news/articleView.html?idxno=210614" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">05/18 04:37</time>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.24s" tabindex="0" role="article" aria-label="에릭 슈미트 AI 연설 야유">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/2026-05-18/kr_2.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/2026-05-18/en_2.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/2026-05-18/jp_2.mp3"></audio>
+          <div class="card-head">
+            <span class="num">03</span>
+            <span class="badge"><span class="lang kr">기업동향</span><span class="lang en" style="display:none">Industry</span><span class="lang jp" style="display:none">企業動向</span></span>
+            <span class="sources"><span class="lang kr">2개 매체 보도</span><span class="lang en" style="display:none">Covered by 2 sources</span><span class="lang jp" style="display:none">2社が報道</span></span>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=google.com&amp;sz=64" alt=""><span class="lang kr">에릭 슈미트 AI 연설 야유</span><span class="lang en" style="display:none">Eric Schmidt&#x27;s AI speech booed</span><span class="lang jp" style="display:none">エリック・シュミット氏AI演説にブーイング</span></h2>
+          <p class="card-summary"><span class="lang kr">전 구글 CEO 에릭 슈미트가 애리조나 대학교 졸업식에서 AI에 대해 연설하자 야유를 받았다. AI는 이미 논쟁적인 주제이며, 취업을 앞둔 학생들이 큰 영향을 느끼는 것은 놀라운 일이 아니다.</span><span class="lang en" style="display:none">Former Google CEO Eric Schmidt was booed during his commencement address at the University of Arizona when he spoke about AI. AI is already a contentious topic, and it&#x27;s understandable that students facing a challenging job market feel its impact.</span><span class="lang jp" style="display:none">元Google CEOのエリック・シュミット氏がアリゾナ大学の卒業式でAIについて演説中、ブーイングを受けた。AIは既に議論の的となっており、厳しい就職市場に直面する学生たちがその影響を感じるのは当然のことだ。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">AI에 대한 대중, 특히 취업을 앞둔 젊은 세대의 부정적 인식을 보여주며, AI 기술의 사회적 수용성에 대한 중요한 시사점을 제공한다.</span><span class="lang en" style="display:none">This event highlights the negative public perception of AI, particularly among the younger generation entering the job market, offering significant insights into the social acceptance of AI technology.</span><span class="lang jp" style="display:none">AIに対する世間、特に就職を控えた若い世代の否定的な認識を示しており、AI技術の社会的受容性に関する重要な示唆を提供する。</span></span>
+          </div>
+          <div class="card-actions">
+            <button class="card-play" onclick="playIdx(2)" aria-label="재생">▶</button>
+            <a href="https://www.theverge.com/ai-artificial-intelligence/932203/university-of-arizona-students-boo-eric-schmidt-ai-commencement" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">05/18 02:22</time>
+          </div>
+        </article>
+        <article class="card" style="animation-delay:0.36s" tabindex="0" role="article" aria-label="머스크-OpenAI 재판 신뢰성">
+          <audio class="tts-audio tts-kr" preload="none" src="audio/2026-05-18/kr_3.mp3"></audio><audio class="tts-audio tts-en" preload="none" src="audio/2026-05-18/en_3.mp3"></audio><audio class="tts-audio tts-jp" preload="none" src="audio/2026-05-18/jp_3.mp3"></audio>
+          <div class="card-head">
+            <span class="num">04</span>
+            <span class="badge"><span class="lang kr">기업동향</span><span class="lang en" style="display:none">Industry</span><span class="lang jp" style="display:none">企業動向</span></span>
+            <span class="sources"><span class="lang kr">1개 매체 보도</span><span class="lang en" style="display:none">Covered by 1 sources</span><span class="lang jp" style="display:none">1社が報道</span></span>
+          </div>
+          <h2 class="card-title"><img class="company-icon" src="https://www.google.com/s2/favicons?domain=openai.com&amp;sz=64" alt=""><span class="lang kr">머스크-OpenAI 재판 신뢰성</span><span class="lang en" style="display:none">Musk-OpenAI trial: trust in question</span><span class="lang jp" style="display:none">マスク対OpenAI裁判、信頼性が焦点</span></h2>
+          <p class="card-summary"><span class="lang kr">일론 머스크와 OpenAI의 재판 막바지에 주요 쟁점은 OpenAI CEO 샘 알트먼의 신뢰성 여부였다.</span><span class="lang en" style="display:none">A key issue during the final days of the Elon Musk-OpenAI trial was the trustworthiness of OpenAI CEO Sam Altman.</span><span class="lang jp" style="display:none">イーロン・マスク氏とOpenAIの裁判の終盤、OpenAIのサム・アルトマンCEOの信頼性が大きな争点となった。</span></p>
+          <div class="card-why">
+            <span class="why-label">WHY IT MATTERS</span>
+            <span class="why-text"><span class="lang kr">주요 AI 기업의 리더십 및 신뢰성 문제가 공개적으로 논의되는 것은 AI 산업의 투명성과 윤리적 책임에 대한 중요성을 부각한다.</span><span class="lang en" style="display:none">The public discussion of leadership and trustworthiness issues within a major AI company highlights the importance of transparency and ethical responsibility in the AI industry.</span><span class="lang jp" style="display:none">主要なAI企業のリーダーシップと信頼性の問題が公に議論されることは、AI産業における透明性と倫理的責任の重要性を浮き彫りにする。</span></span>
+          </div>
+          <div class="card-actions">
+            <button class="card-play" onclick="playIdx(3)" aria-label="재생">▶</button>
+            <a href="https://techcrunch.com/2026/05/17/why-trust-is-a-big-question-at-the-elon-musk-openai-trial/" target="_blank" rel="noopener noreferrer" class="card-source"><span class="lang kr">원문 보기 ↗</span><span class="lang en" style="display:none">Read original ↗</span><span class="lang jp" style="display:none">原文を見る ↗</span></a>
+            <time class="card-time">05/18 04:46</time>
+          </div>
+        </article></main>
+<audio id="tts-all-kr" preload="none" src="audio/2026-05-18/kr_all.mp3"></audio>
+<audio id="tts-all-en" preload="none" src="audio/2026-05-18/en_all.mp3"></audio>
+<audio id="tts-all-jp" preload="none" src="audio/2026-05-18/jp_all.mp3"></audio>
+
+
+  <nav class="player" id="player" role="region" aria-label="오디오 플레이어">
+    <div class="player-progress"><div class="player-progress-bar" id="pbar"></div></div>
+    <div class="player-inner">
+      <div class="player-info">
+        <div class="player-title" id="ptitle" aria-live="polite">재생 대기 중</div>
+        <div class="player-sub" id="psub"></div>
+      </div>
+      <div class="player-controls">
+        <button class="p-btn" onclick="prevTrack()" aria-label="이전 뉴스">⏮</button>
+        <button class="p-btn main" id="pbtn" onclick="togglePlay()" aria-label="재생">▶</button>
+        <button class="p-btn" onclick="nextTrack()" aria-label="다음 뉴스">⏭</button>
+      </div>
+    </div>
+  </nav>
+
+<canvas id="aurora" aria-hidden="true"></canvas>
+<script>
+(function(){
+  const c=document.getElementById('aurora'),x=c.getContext('2d');
+  let w,h;
+  function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; }
+  resize(); addEventListener('resize',resize);
+  const blobs=[
+    {x:.2,y:.25,r:300,dx:.0003,dy:.0002,color:[99,102,241]},
+    {x:.75,y:.55,r:250,dx:-.0004,dy:.0003,color:[167,139,250]},
+    {x:.5,y:.8,r:200,dx:.0002,dy:-.0003,color:[99,102,241]},
+  ];
+  let t=0;
+  function draw(){
+    x.clearRect(0,0,w,h);
+    t+=.005;
+    blobs.forEach(b=>{
+      const bx=(b.x+Math.sin(t*2+b.dx*1000)*.08)*w;
+      const by=(b.y+Math.cos(t*1.5+b.dy*1000)*.06)*h;
+      const r=b.r+Math.sin(t*3)*.15*b.r;
+      const g=x.createRadialGradient(bx,by,0,bx,by,r);
+      g.addColorStop(0,`rgba(${b.color.join(',')},0.12)`);
+      g.addColorStop(1,'transparent');
+      x.fillStyle=g;
+      x.fillRect(0,0,w,h);
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── 플레이어 ──
+let curLang='kr';
+let curIdx=0;
+let isPlaying=false;
+let curAudio=null;
+const cards=document.querySelectorAll('.card');
+const player=document.getElementById('player');
+const pbtn=document.getElementById('pbtn');
+const ptitle=document.getElementById('ptitle');
+const psub=document.getElementById('psub');
+const pbar=document.getElementById('pbar');
+
+function getTitle(i){
+  const card=cards[i];
+  if(!card) return '';
+  const el=card.querySelector('.card-title .lang.'+curLang);
+  return el?el.textContent:'';
+}
+
+function showPlayer(){ player.classList.add('active'); }
+function hidePlayer(){ player.classList.remove('active'); }
+
+function highlight(i){
+  cards.forEach(c=>c.classList.remove('now-playing'));
+  if(cards[i]) cards[i].classList.add('now-playing');
+  ptitle.textContent=getTitle(i)||'재생 대기 중';
+  psub.textContent=`${i+1} / ${cards.length}`;
+  pbar.style.width=`${((i+1)/cards.length)*100}%`;
+  if(cards[i]) cards[i].scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function playIdx(i){
+  if(curAudio){ curAudio.pause(); curAudio.currentTime=0; }
+  curIdx=i;
+  const card=cards[i];
+  if(!card){ stop(); return; }
+  const audio=card.querySelector('.tts-audio.tts-'+curLang);
+  if(!audio){ nextTrack(); return; }
+  curAudio=audio;
+  showPlayer();
+  highlight(i);
+  isPlaying=true;
+  pbtn.textContent='⏸';
+  pbtn.setAttribute('aria-label','일시정지');
+  audio.onended=()=>nextTrack();
+  audio.play();
+}
+
+function togglePlay(){
+  if(isPlaying && curAudio){
+    curAudio.pause();
+    isPlaying=false;
+    pbtn.textContent='▶';
+    pbtn.setAttribute('aria-label','재생');
+  } else if(!isPlaying && curAudio && curAudio.currentTime>0){
+    curAudio.play();
+    isPlaying=true;
+    pbtn.textContent='⏸';
+    pbtn.setAttribute('aria-label','일시정지');
+  } else {
+    playIdx(curIdx);
+  }
+}
+
+function nextTrack(){
+  if(curIdx<cards.length-1) playIdx(curIdx+1);
+  else stop();
+}
+
+function prevTrack(){
+  if(curAudio && curAudio.currentTime>3){ curAudio.currentTime=0; return; }
+  if(curIdx>0) playIdx(curIdx-1);
+}
+
+function stop(){
+  if(curAudio){ curAudio.pause(); curAudio.currentTime=0; curAudio=null; }
+  isPlaying=false;
+  pbtn.textContent='▶';
+  pbtn.setAttribute('aria-label','재생');
+  cards.forEach(c=>c.classList.remove('now-playing'));
+  ptitle.textContent='재생 완료';
+  psub.textContent='';
+  pbar.style.width='100%';
+  curIdx=0;
+  setTimeout(hidePlayer,2000);
+}
+
+function setLang(lang){
+  const wasPlaying=isPlaying;
+  if(curAudio){ curAudio.pause(); curAudio.currentTime=0; }
+  curLang=lang;
+  document.querySelectorAll('.lang').forEach(el=>{
+    el.style.display=el.classList.contains(lang)?'inline':'none';
+  });
+  document.querySelectorAll('.ls-btn').forEach(btn=>{
+    btn.classList.toggle('active',btn.textContent.toLowerCase()===lang);
+  });
+  if(isPlaying) playIdx(curIdx);
+}
+
+// 키보드 네비게이션: Space → 재생/일시정지, 좌우 화살표 → 이전/다음
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if(e.code==='Space'){ e.preventDefault(); togglePlay(); }
+  else if(e.code==='ArrowRight'){ nextTrack(); }
+  else if(e.code==='ArrowLeft'){ prevTrack(); }
+});
+</script>
+</body>
+</html>
